@@ -6,34 +6,40 @@ library("data.table")
 options(scipen = 999) # don't print scientific notation numbers
 set.seed(1)
 
-# Simulate data, two segments, each with two components, a shared and a unique
+# Simulate test data, 2 segments, each with 4 components, 2 shared and 2 unique
 
-comp1.vals <- data.table(comp = "A", vals = rnorm(1000, mean = 1, sd = 0.5),seg="seg1")
-comp2.vals <- data.table(comp = "B", vals = rnorm(2000, mean = 2, sd = 0.5),seg="seg1")
+# Common components
+comp1.vals <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5),seg="seg1")
+comp2.vals <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5),seg="seg2")
 
-comp3.vals <- data.table(comp = "B", vals = rnorm(2000, mean = 2, sd = 0.5),seg="seg2")
-comp4.vals <- data.table(comp = "C", vals = rnorm(1000, mean = 3, sd = 0.5),seg="seg2")
+comp3.vals <- data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5),seg="seg1")
+comp4.vals <- data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5),seg="seg2")
 
-comp5.vals <- data.table(comp = "D", vals = rnorm(1500, mean = 5, sd = 0.5),seg="seg1")
-comp6.vals <- data.table(comp = "D", vals = rnorm(1500, mean = 5, sd = 0.5),seg="seg2")
+# Unique components
+comp5.vals <- data.table(comp = "C", vals = rnorm(3000, mean = 1, sd = 0.5),seg="seg1")
+comp6.vals <- data.table(comp = "D", vals = rnorm(1000, mean = 3, sd = 0.5),seg="seg2")
 
-vals.df <- bind_rows(comp1.vals, comp2.vals, comp3.vals, comp4.vals,comp5.vals,comp6.vals)
+comp7.vals <- data.table(comp = "E", vals = rnorm(1500, mean = 10, sd = 0.5),seg="seg1")
+comp8.vals <- data.table(comp = "F", vals = rnorm(1500, mean = 12, sd = 0.5),seg="seg2")
 
-# hist per segment
+vals.df <- bind_rows(comp1.vals,comp2.vals,comp3.vals,comp4.vals,comp5.vals,comp6.vals,comp7.vals,comp8.vals)
+
+# Overall histogram per segment
 ggplot(vals.df, aes(vals)) +
   geom_density() +
   facet_wrap(~seg,nrow = 2)
 
-# broken down by true components
+# Histogram broken down by true components
 ggplot(vals.df, aes(vals, colour = comp)) +
   geom_density() +
   facet_wrap(~seg,nrow = 2)
 
+# including weightings
 ggplot(vals.df, aes(vals, colour = comp)) +
   geom_freqpoly(binwidth=0.1) +
   facet_wrap(~seg,nrow = 2)
 
-# broken down by true components
+# Generic Plot function
 plot.components <- function(){
 ggplot(vals.df, aes(vals, colour = comp)) +
   geom_density() +
@@ -41,8 +47,10 @@ ggplot(vals.df, aes(vals, colour = comp)) +
   ggtitle(paste("iteration:",iter.count)) +
   stat_function(fun = dnorm, colour = "black",aes(linetype="common"), args = list(mean = com.param[1,]$mu, sd = com.param[1,]$sigma^0.5)) +
   stat_function(fun = dnorm, colour = "black",aes(linetype="common"), args = list(mean = com.param[2,]$mu, sd = com.param[2,]$sigma^0.5)) +
-  stat_function(fun = dnorm, colour = "black",aes(linetype="segment\n specific"), args = list(mean = unique(vals.df[seg=="seg1"]$k1mu), sd = unique(vals.df[seg=="seg1"]$k1sigma^0.5))) +
-  stat_function(fun = dnorm, colour = "black",aes(linetype="segment\n specific"), args = list(mean = unique(vals.df[seg=="seg2"]$k1mu), sd = unique(vals.df[seg=="seg2"]$k1sigma^0.5)))
+  stat_function(fun = dnorm, colour = "black",aes(linetype="segment\n specific"), args = list(mean = unique(mu.k[segment.indicies[['seg1']],1]), sd = unique(sigma2.k[segment.indicies[['seg1']],1])^0.5)) +
+    stat_function(fun = dnorm, colour = "black",aes(linetype="segment\n specific"), args = list(mean = unique(mu.k[segment.indicies[['seg1']],2]), sd = unique(sigma2.k[segment.indicies[['seg1']],2])^0.5)) +
+    stat_function(fun = dnorm, colour = "black",aes(linetype="segment\n specific"), args = list(mean = unique(mu.k[segment.indicies[['seg2']],1]), sd = unique(sigma2.k[segment.indicies[['seg1']],1])^0.5)) +
+    stat_function(fun = dnorm, colour = "black",aes(linetype="segment\n specific"), args = list(mean = unique(mu.k[segment.indicies[['seg2']],2]), sd = unique(sigma2.k[segment.indicies[['seg2']],2])^0.5))
 }
 
 plot.components()
