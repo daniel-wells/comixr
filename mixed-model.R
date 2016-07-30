@@ -75,7 +75,7 @@ com.param <- data.table(w=c(0.5,0.5),
                         sigma2=c(0.6^2,0.6^2))
 
 # initialise segment specific parameter holding matricies
-mu.k <- sigma2.k <- w.k <- matrix(nrow=nrow(yi.vals),ncol=2)
+mu.k <- sigma2.k <- w.k <- matrix(nrow=length(yi.vals),ncol=2)
 
 w.k[,1] <- 0.5
 w.k[,2] <- 0.5
