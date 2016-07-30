@@ -57,20 +57,34 @@ plot.components()
 
 ### INITIALISATION
 
-rho <- 0.5
+# get index ranges of each segment
+segment.indicies <- vals.df[,.(index = list(.I)),by=seg]
+segment.names <- segment.indicies$seg
+segment.indicies <- segment.indicies$index
+names(segment.indicies) <- segment.names
 
-# set common component parameters
+# for each segment
+rho <- c(0.5,0.5)
+names(rho) <- segment.names
+
+# set common component parameters, one per common component
 com.param <- data.table(w=c(0.5,0.5),
-                          mu=c(1.5,3.5),
-                          sigma=c(0.6^2,0.6^2))
+                        mu=c(3.5,10),
+                        sigma2=c(0.6^2,0.6^2))
 
-vals.df[seg=="seg1",k1w:=1] # something wrong here
-vals.df[seg=="seg1",k1mu:=0.5] # actually 1
-vals.df[seg=="seg1",k1sigma:=0.3^2] # actually 0.5
+# initialise segment specific parameter holding matricies
+mu.k <- sigma2.k <- w.k <- matrix(nrow=nrow(vals.df),ncol=2)
 
-vals.df[seg=="seg2",k1w:=1]
-vals.df[seg=="seg2",k1mu:=4] # actually 3
-vals.df[seg=="seg2",k1sigma:=0.6^2] # actually 0.5
+w.k[,1] <- 0.5
+w.k[,2] <- 0.5
+
+mu.k[,1] <- 2 # actually 1
+mu.k[,2] <- 12 # actually 3
+
+sigma2.k[,1] <- 0.5^2 # actually 0.5
+sigma2.k[,2] <- 0.5^2 # actually 0.5
+
+vals.df$psi_i <- 0.5
 
 iter.count <- 0
 
@@ -82,22 +96,25 @@ plot.components()
 #microbenchmark(CODE HERE)
 
 # UPDATES
-# for the case of c=1, k=1 (per segment)
+
+#### E Updates
 
 # for each common component, cacluate prob for each data point, outputs i x c matrix
-common <- apply(com.param, 1, function(params){ params['w'] * dnorm(vals.df$vals, params['mu'], params['sigma']^0.5)})
+common <- apply(com.param, 1, function(params){ params['w'] * dnorm(vals.df$vals, params['mu'], params['sigma2']^0.5)})
 
-specific <- vals.df$k1w * dnorm(vals.df$vals, vals.df$k1mu, vals.df$k1sigma^0.5)
+# output i x k matrix
+specific <- w.k * dnorm(vals.df$vals, mu.k, sigma2.k^0.5)
 
-vals.df$psi_i <- ( (1-rho) * rowSums(common) ) / (( (1-rho) * rowSums(common) ) + rho*specific )
+for (segment in segment.names){
+  indexes <- segment.indicies[[segment]]
+  vals.df[seg==segment]$psi_i <- ( (1-rho[segment]) * rowSums(common[indexes,]) ) / (( (1-rho[segment]) * rowSums(common[indexes,]) ) + rho[segment] * rowSums(specific[indexes,]) )
+}
 
 phi_ic <- common/rowSums(common)
 
-vals.df$v_ik <- 1 # specific/specific
+nu_ik <- specific/rowSums(specific)
 
-####
-  
-rho <- 1 - sum(vals.df$psi_i)/nrow(vals.df)
+#### M Updates
 
 # returns c parameters
 topsum <- colSums(phi_ic * vals.df$psi_i)
@@ -106,23 +123,23 @@ com.param$w <- topsum / sum(vals.df$psi_i)
 
 com.param$mu <- colSums(phi_ic * vals.df$psi_i * vals.df$vals) / topsum
 
-# mu_0c <- sum(vals.df$phi_ic * vals.df$psi_i * vals.df$vals) / topsum
+com.param$sigma2 <- colSums(phi_ic * vals.df$psi_i * outer(vals.df$vals,com.param$mu, FUN="-")^2) / topsum
 
-com.param$sigma <- colSums(phi_ic * vals.df$psi_i * outer(vals.df$vals,com.param$mu, FUN="-")^2) / topsum
-
-# sigma_0c <- sum(vals.df$phi_ic * vals.df$psi_i * (vals.df$vals-mu_0c)^2) / topsum
-
-for (segment in c("seg1","seg2")){
+for (segment in segment.names){
   # for each segment j, there are k weightings
-  topsum <- sum((1-vals.df[seg==segment]$psi_i) * vals.df[seg==segment]$v_ik)
+  indexes <- segment.indicies[[segment]]
   
-  vals.df[seg==segment,k1w:= topsum / sum(1-vals.df[seg==segment]$psi_i)]
+  rho[segment] <- 1 - sum(vals.df[seg==segment]$psi_i)/length(indexes)
   
-  temp.sum <- 1-vals.df[seg==segment]$psi_i * vals.df[seg==segment]$v_ik
+  temp.sum <- (1-vals.df[seg==segment]$psi_i) * nu_ik[indexes,]
+  topsum <- colSums(temp.sum) # for each component...
   
-  vals.df[seg==segment,k1mu:=sum(temp.sum * vals.df[seg==segment]$vals) /  topsum]
+  w.k[indexes,] <- rep(topsum / sum(1-vals.df[seg==segment]$psi_i), each=length(indexes))
+
+  mu.k[indexes,] <- rep(colSums(temp.sum * vals.df[seg==segment]$vals) /  topsum, each=length(indexes))
   
-  vals.df[seg==segment,k1sigma:=sum(temp.sum * (vals.df[seg==segment]$vals - vals.df[seg==segment]$k1mu)^2) /  topsum]
+  sigma2.k[indexes,] <- rep(colSums(temp.sum * (vals.df[seg==segment]$vals - mu.k[indexes,])^2) /  topsum, each=length(indexes))
+
 }
 
 iter.count <- iter.count + 1
