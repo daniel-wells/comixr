@@ -63,6 +63,8 @@ segment.names <- segment.indicies$seg
 segment.indicies <- segment.indicies$index
 names(segment.indicies) <- segment.names
 
+yi.vals <- vals.df$vals
+
 # for each segment
 rho <- c(0.5,0.5)
 names(rho) <- segment.names
@@ -73,7 +75,7 @@ com.param <- data.table(w=c(0.5,0.5),
                         sigma2=c(0.6^2,0.6^2))
 
 # initialise segment specific parameter holding matricies
-mu.k <- sigma2.k <- w.k <- matrix(nrow=nrow(vals.df),ncol=2)
+mu.k <- sigma2.k <- w.k <- matrix(nrow=nrow(yi.vals),ncol=2)
 
 w.k[,1] <- 0.5
 w.k[,2] <- 0.5
@@ -84,7 +86,7 @@ mu.k[,2] <- 12 # actually 3
 sigma2.k[,1] <- 0.5^2 # actually 0.5
 sigma2.k[,2] <- 0.5^2 # actually 0.5
 
-vals.df$psi_i <- 0.5
+psi_i <- rep(0.5,length(yi.vals))
 
 iter.count <- 0
 
@@ -92,22 +94,22 @@ plot.components()
 
 #library(profvis)
 #library(microbenchmark)
-# profvis({ CODE HERE })
+# profvis({ #CODE HERE })
 #microbenchmark(CODE HERE)
 
 # UPDATES
-
+for (round in 1:40){
 #### E Updates
 
 # for each common component, cacluate prob for each data point, outputs i x c matrix
-common <- apply(com.param, 1, function(params){ params['w'] * dnorm(vals.df$vals, params['mu'], params['sigma2']^0.5)})
+common <- apply(com.param, 1, function(params){ params['w'] * dnorm(yi.vals, params['mu'], params['sigma2']^0.5)})
 
 # output i x k matrix
-specific <- w.k * dnorm(vals.df$vals, mu.k, sigma2.k^0.5)
+specific <- w.k * dnorm(yi.vals, mu.k, sigma2.k^0.5)
 
 for (segment in segment.names){
   indexes <- segment.indicies[[segment]]
-  vals.df[seg==segment]$psi_i <- ( (1-rho[segment]) * rowSums(common[indexes,]) ) / (( (1-rho[segment]) * rowSums(common[indexes,]) ) + rho[segment] * rowSums(specific[indexes,]) )
+  psi_i[indexes] <- ( (1-rho[segment]) * rowSums(common[indexes,]) ) / (( (1-rho[segment]) * rowSums(common[indexes,]) ) + rho[segment] * rowSums(specific[indexes,]) )
 }
 
 phi_ic <- common/rowSums(common)
@@ -117,28 +119,28 @@ nu_ik <- specific/rowSums(specific)
 #### M Updates
 
 # returns c parameters
-topsum <- colSums(phi_ic * vals.df$psi_i)
+topsum <- colSums(phi_ic * psi_i)
 
-com.param$w <- topsum / sum(vals.df$psi_i)
+com.param$w <- topsum / sum(psi_i)
 
-com.param$mu <- colSums(phi_ic * vals.df$psi_i * vals.df$vals) / topsum
+com.param$mu <- colSums(phi_ic * psi_i * yi.vals) / topsum
 
-com.param$sigma2 <- colSums(phi_ic * vals.df$psi_i * outer(vals.df$vals,com.param$mu, FUN="-")^2) / topsum
+com.param$sigma2 <- colSums(phi_ic * psi_i * outer(yi.vals,com.param$mu, FUN="-")^2) / topsum
 
 for (segment in segment.names){
   # for each segment j, there are k weightings
   indexes <- segment.indicies[[segment]]
   
-  rho[segment] <- 1 - sum(vals.df[seg==segment]$psi_i)/length(indexes)
+  rho[segment] <- 1 - sum(psi_i[indexes])/length(indexes)
   
-  temp.sum <- (1-vals.df[seg==segment]$psi_i) * nu_ik[indexes,]
+  temp.sum <- (1-psi_i[indexes]) * nu_ik[indexes,]
   topsum <- colSums(temp.sum) # for each component...
   
-  w.k[indexes,] <- rep(topsum / sum(1-vals.df[seg==segment]$psi_i), each=length(indexes))
+  w.k[indexes,] <- rep(topsum / sum(1-psi_i[indexes]), each=length(indexes))
 
-  mu.k[indexes,] <- rep(colSums(temp.sum * vals.df[seg==segment]$vals) /  topsum, each=length(indexes))
+  mu.k[indexes,] <- rep(colSums(temp.sum * yi.vals[indexes]) /  topsum, each=length(indexes))
   
-  sigma2.k[indexes,] <- rep(colSums(temp.sum * (vals.df[seg==segment]$vals - mu.k[indexes,])^2) /  topsum, each=length(indexes))
+  sigma2.k[indexes,] <- rep(colSums(temp.sum * (yi.vals[indexes] - mu.k[indexes,])^2) /  topsum, each=length(indexes))
 
 }
 
