@@ -23,6 +23,7 @@ comp7.vals <- data.table(comp = "E", vals = rnorm(1500, mean = 10, sd = 0.5),seg
 comp8.vals <- data.table(comp = "F", vals = rnorm(1500, mean = 12, sd = 0.5),seg="seg2")
 
 vals.df <- bind_rows(comp1.vals,comp2.vals,comp3.vals,comp4.vals,comp5.vals,comp6.vals,comp7.vals,comp8.vals)
+vals.df$source <- "Known"
 
 # Overall histogram per segment
 ggplot(vals.df, aes(vals)) +
@@ -41,16 +42,29 @@ ggplot(vals.df, aes(vals, colour = comp)) +
 
 # Generic Plot function
 plot.components <- function(){
-ggplot(vals.df, aes(vals, colour = comp)) +
-  geom_density() +
-  facet_wrap(~seg,nrow = 2) +
-  ggtitle(paste("iteration:",iter.count)) +
-  stat_function(fun = dnorm, colour = "black",aes(linetype="common"), args = list(mean = com.param[1,]$mu, sd = com.param[1,]$sigma^0.5)) +
-  stat_function(fun = dnorm, colour = "black",aes(linetype="common"), args = list(mean = com.param[2,]$mu, sd = com.param[2,]$sigma^0.5)) +
-  stat_function(fun = dnorm, colour = "black",aes(linetype="segment\n specific"), args = list(mean = unique(mu.k[segment.indicies[['seg1']],1]), sd = unique(sigma2.k[segment.indicies[['seg1']],1])^0.5)) +
-    stat_function(fun = dnorm, colour = "black",aes(linetype="segment\n specific"), args = list(mean = unique(mu.k[segment.indicies[['seg1']],2]), sd = unique(sigma2.k[segment.indicies[['seg1']],2])^0.5)) +
-    stat_function(fun = dnorm, colour = "black",aes(linetype="segment\n specific"), args = list(mean = unique(mu.k[segment.indicies[['seg2']],1]), sd = unique(sigma2.k[segment.indicies[['seg1']],1])^0.5)) +
-    stat_function(fun = dnorm, colour = "black",aes(linetype="segment\n specific"), args = list(mean = unique(mu.k[segment.indicies[['seg2']],2]), sd = unique(sigma2.k[segment.indicies[['seg2']],2])^0.5))
+  temp <- data.table(vals=numeric(),comp=character(),seg=character())
+  
+  for (segment in segment.names){
+    indexes <- segment.indicies[[segment]]
+    
+    w.temp <- c((1-rho[segment])*com.param$w,rho[segment]*unique(w.k[indexes,]))
+    mu.temp <- c(com.param$mu,unique(mu.k[indexes,]))
+    sigma2.temp <- c(com.param$sigma2,unique(sigma2.k[indexes,]))
+    
+    for (component in 1:length(w.temp)){
+      temp <- rbind(temp,data.table(vals=rnorm(7000*w.temp[component], mean = mu.temp[component], sd = sigma2.temp[component]^0.5),comp=component,seg=segment))
+    }
+    
+  }
+  
+  temp$source <- "Inferred"
+  
+  temp <- rbind(temp,vals.df)
+  
+  ggplot(temp, aes(vals, group = comp,colour=source)) +
+    geom_freqpoly(binwidth=0.1) +
+    ggtitle(paste("iteration:",iter.count)) +
+    facet_wrap(~seg,nrow = 2)
 }
 
 plot.components()
@@ -148,3 +162,4 @@ iter.count <- iter.count + 1
 
 plot.components()
 
+} # EM repetition loop
