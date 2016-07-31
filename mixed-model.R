@@ -6,34 +6,6 @@ library("data.table")
 options(scipen = 999) # don't print scientific notation numbers
 set.seed(1)
 
-# Simulate test data, 2 segments, each with 4 components, 2 shared and 2 unique
-
-# Common components
-comp1.vals <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5),seg="seg1")
-comp2.vals <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5),seg="seg2")
-
-comp3.vals <- data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5),seg="seg1")
-comp4.vals <- data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5),seg="seg2")
-
-# Unique components
-comp5.vals <- data.table(comp = "C", vals = rnorm(3000, mean = 1, sd = 0.5),seg="seg1")
-comp6.vals <- data.table(comp = "D", vals = rnorm(1000, mean = 3, sd = 0.5),seg="seg2")
-
-comp7.vals <- data.table(comp = "E", vals = rnorm(1500, mean = 10, sd = 0.5),seg="seg1")
-comp8.vals <- data.table(comp = "F", vals = rnorm(1500, mean = 12, sd = 0.5),seg="seg2")
-
-test.data <- bind_rows(comp1.vals,comp2.vals,comp3.vals,comp4.vals,comp5.vals,comp6.vals,comp7.vals,comp8.vals)
-
-# Overall histogram per segment
-ggplot(vals.df, aes(vals)) +
-  geom_density() +
-  facet_wrap(~seg,nrow = 2)
-
-# Histogram broken down by true components
-ggplot(vals.df, aes(vals, colour = comp)) +
-  geom_freqpoly(binwidth=0.1) +
-  facet_wrap(~seg,nrow = 2)
-
 # parse learned/output parameters
 get.output.parameters <- function(){
   
@@ -88,16 +60,6 @@ plot.components <- function(vals.df,output.parameters){
 # 3) data.frame of initial parameters for each component, both common and specific
 # fit.model(data=vals.df,rho=c(0.5,0.5),input.parameters=initial.parameters,init.max=40)
 # returns a data frame of output parameters
-
-initial.parameters <- data.table(
-  w=c(0.5),
-  mu=c(3.5,10,2,12),
-  sigma2=c(0.6^2),
-  component.type=c("common","common","specific","specific"))
-
-output <- fit.model(test.data,c(0.5,0.5),initial.parameters)
-
-plot.components(test.data,output)
 
 fit.model <- function(vals.df,rho.input,input.parameters,init.max=40){
 
@@ -205,3 +167,41 @@ return(get.output.parameters())
 
 }# end of fit.model function
 
+
+# Simulate test data, 2 segments, each with 4 components, 2 shared and 2 unique
+
+# Common components
+comp1.vals <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5),seg="seg1")
+comp2.vals <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5),seg="seg2")
+
+comp3.vals <- data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5),seg="seg1")
+comp4.vals <- data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5),seg="seg2")
+
+# Unique components
+comp5.vals <- data.table(comp = "C", vals = rnorm(3000, mean = 1, sd = 0.5),seg="seg1")
+comp6.vals <- data.table(comp = "D", vals = rnorm(1000, mean = 3, sd = 0.5),seg="seg2")
+
+comp7.vals <- data.table(comp = "E", vals = rnorm(1500, mean = 10, sd = 0.5),seg="seg1")
+comp8.vals <- data.table(comp = "F", vals = rnorm(1500, mean = 12, sd = 0.5),seg="seg2")
+
+test.data <- bind_rows(comp1.vals,comp2.vals,comp3.vals,comp4.vals,comp5.vals,comp6.vals,comp7.vals,comp8.vals)
+
+# Overall histogram per segment
+ggplot(vals.df, aes(vals)) +
+  geom_density() +
+  facet_wrap(~seg,nrow = 2)
+
+# Histogram broken down by true components
+ggplot(vals.df, aes(vals, colour = comp)) +
+  geom_freqpoly(binwidth=0.1) +
+  facet_wrap(~seg,nrow = 2)
+
+initial.parameters <- data.table(
+  w=c(0.5),
+  mu=c(3.5,10,2,12),
+  sigma2=c(0.6^2),
+  component.type=c("common","common","specific","specific"))
+
+output <- fit.model(test.data,c(0.5,0.5),initial.parameters)
+
+plot.components(test.data,output)
