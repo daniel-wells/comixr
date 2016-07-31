@@ -22,8 +22,7 @@ comp6.vals <- data.table(comp = "D", vals = rnorm(1000, mean = 3, sd = 0.5),seg=
 comp7.vals <- data.table(comp = "E", vals = rnorm(1500, mean = 10, sd = 0.5),seg="seg1")
 comp8.vals <- data.table(comp = "F", vals = rnorm(1500, mean = 12, sd = 0.5),seg="seg2")
 
-vals.df <- bind_rows(comp1.vals,comp2.vals,comp3.vals,comp4.vals,comp5.vals,comp6.vals,comp7.vals,comp8.vals)
-vals.df$source <- "Known"
+test.data <- bind_rows(comp1.vals,comp2.vals,comp3.vals,comp4.vals,comp5.vals,comp6.vals,comp7.vals,comp8.vals)
 
 # Overall histogram per segment
 ggplot(vals.df, aes(vals)) +
@@ -32,94 +31,134 @@ ggplot(vals.df, aes(vals)) +
 
 # Histogram broken down by true components
 ggplot(vals.df, aes(vals, colour = comp)) +
-  geom_density() +
-  facet_wrap(~seg,nrow = 2)
-
-# including weightings
-ggplot(vals.df, aes(vals, colour = comp)) +
   geom_freqpoly(binwidth=0.1) +
   facet_wrap(~seg,nrow = 2)
 
-# Generic Plot function
-plot.components <- function(){
-  temp <- data.table(vals=numeric(),comp=character(),seg=character())
+# parse learned/output parameters
+get.output.parameters <- function(){
+  
+  output.parameters <- data.table(rho=numeric(),w=numeric(),rho_w=numeric(),mu=numeric(),sigma2=numeric(),component.type=character(),segment=character())
   
   for (segment in segment.names){
     indexes <- segment.indicies[[segment]]
     
-    w.temp <- c((1-rho[segment])*com.param$w,rho[segment]*unique(w.k[indexes,]))
-    mu.temp <- c(com.param$mu,unique(mu.k[indexes,]))
-    sigma2.temp <- c(com.param$sigma2,unique(sigma2.k[indexes,]))
+    output.parameters.temp <- data.frame(
+      rho = as.numeric(rho[segment]),
+      w = c(com.param$w,unique(w.k[indexes,])),
+      rho_w = c((1-rho[segment])*com.param$w,rho[segment]*unique(w.k[indexes,])),
+      mu = c(com.param$mu,unique(mu.k[indexes,])),
+      sigma2 = c(com.param$sigma2,unique(sigma2.k[indexes,])),
+      component.type = c(rep("common",length(com.param$mu)),rep("specific",length(unique(mu.k[indexes,])))),
+      segment = segment
+    )
     
-    for (component in 1:length(w.temp)){
-      temp <- rbind(temp,data.table(vals=rnorm(7000*w.temp[component], mean = mu.temp[component], sd = sigma2.temp[component]^0.5),comp=component,seg=segment))
-    }
-    
+    output.parameters <- rbind(output.parameters,output.parameters.temp)
+  }
+  return(output.parameters)
+}
+
+# Generic Plot function
+plot.components <- function(vals.df,output.parameters){
+  
+  temp <- data.table(vals=numeric(),comp=character(),seg=character(),component.type=character())
+  
+  for (component in 1:nrow(output.parameters)){
+    temp <- rbind(temp,data.table(vals=rnorm(7000*output.parameters[component]$rho_w, 
+                                             mean = output.parameters[component]$mu, 
+                                             sd = output.parameters[component]$sigma2^0.5),
+                                            comp=component,
+                                            seg=output.parameters[component]$segment,
+                                            component.type=output.parameters[component]$component.type))
   }
   
-  temp$source <- "Inferred"
+  vals.df$component.type <- "Original Data"
   
   temp <- rbind(temp,vals.df)
   
-  ggplot(temp, aes(vals, group = comp,colour=source)) +
+  ggplot(temp, aes(vals, group = comp,colour=component.type)) +
     geom_freqpoly(binwidth=0.1) +
     ggtitle(paste("iteration:",iter.count)) +
+    scale_colour_manual(values = c("blue","red","black")) +
     facet_wrap(~seg,nrow = 2)
 }
 
-plot.components()
+# input required: 
+# 1) data.frame of read counts and segment name for each position
+# 2) vector of numeric initial rho, one per segment
+# 3) data.frame of initial parameters for each component, both common and specific
+# fit.model(data=vals.df,rho=c(0.5,0.5),input.parameters=initial.parameters,init.max=40)
+# returns a data frame of output parameters
+
+initial.parameters <- data.table(
+  w=c(0.5),
+  mu=c(3.5,10,2,12),
+  sigma2=c(0.6^2),
+  component.type=c("common","common","specific","specific"))
+
+output <- fit.model(test.data,c(0.5,0.5),initial.parameters)
+
+plot.components(test.data,output)
+
+fit.model <- function(vals.df,rho.input,input.parameters,init.max=40){
 
 ### INITIALISATION
+
+## split input read count data frame into 2: 
+# 1) a list of indexes specifying which read count is in which segment
+# 2) a vector of read counts
 
 # get index ranges of each segment
 segment.indicies <- vals.df[,.(index = list(.I)),by=seg]
 segment.names <- segment.indicies$seg
 segment.indicies <- segment.indicies$index
 names(segment.indicies) <- segment.names
+print(paste(length(segment.indicies),"segments"))
 
-yi.vals <- vals.df$vals
+read.count <- vals.df$vals
+
+## parse input parameters
 
 # for each segment
-rho <- c(0.5,0.5)
+stopifnot(length(segment.indicies)==length(rho.input))
+rho <- rho.input
 names(rho) <- segment.names
 
 # set common component parameters, one per common component
-com.param <- data.table(w=c(0.5,0.5),
-                        mu=c(3.5,10),
-                        sigma2=c(0.6^2,0.6^2))
+com.param <- input.parameters[component.type=="common"]
+com.param$component.type <- NULL
+
+n.specific.components <- nrow(input.parameters[component.type=="specific"])
+print(paste(n.specific.components,"segment specific components"))
+print(paste(nrow(input.parameters[component.type=="specific"]),"common components"))
+
 
 # initialise segment specific parameter holding matricies
-mu.k <- sigma2.k <- w.k <- matrix(nrow=length(yi.vals),ncol=2)
+mu.k <- sigma2.k <- w.k <- matrix(nrow=length(read.count),ncol=n.specific.components)
 
-w.k[,1] <- 0.5
-w.k[,2] <- 0.5
+for (row in 1:n.specific.components){
+  w.k[,row] <- input.parameters[component.type=="specific"][row]$w
+  mu.k[,row] <- input.parameters[component.type=="specific"][row]$mu
+  sigma2.k[,row] <- input.parameters[component.type=="specific"][row]$sigma2
+}
 
-mu.k[,1] <- 2 # actually 1
-mu.k[,2] <- 12 # actually 3
-
-sigma2.k[,1] <- 0.5^2 # actually 0.5
-sigma2.k[,2] <- 0.5^2 # actually 0.5
-
-psi_i <- rep(0.5,length(yi.vals))
+psi_i <- rep(0.5,length(read.count))
 
 iter.count <- 0
-
-plot.components()
 
 #library(profvis)
 #library(microbenchmark)
 # profvis({ #CODE HERE })
 #microbenchmark(CODE HERE)
 
-# UPDATES
-for (round in 1:40){
+##### UPDATES
+for (round in 1:init.max){
 #### E Updates
 
 # for each common component, cacluate prob for each data point, outputs i x c matrix
-common <- apply(com.param, 1, function(params){ params['w'] * dnorm(yi.vals, params['mu'], params['sigma2']^0.5)})
+common <- apply(com.param, 1, function(params){ params['w'] * dnorm(read.count, params['mu'], params['sigma2']^0.5)})
 
 # output i x k matrix
-specific <- w.k * dnorm(yi.vals, mu.k, sigma2.k^0.5)
+specific <- w.k * dnorm(read.count, mu.k, sigma2.k^0.5)
 
 for (segment in segment.names){
   indexes <- segment.indicies[[segment]]
@@ -137,9 +176,9 @@ topsum <- colSums(phi_ic * psi_i)
 
 com.param$w <- topsum / sum(psi_i)
 
-com.param$mu <- colSums(phi_ic * psi_i * yi.vals) / topsum
+com.param$mu <- colSums(phi_ic * psi_i * read.count) / topsum
 
-com.param$sigma2 <- colSums(phi_ic * psi_i * outer(yi.vals,com.param$mu, FUN="-")^2) / topsum
+com.param$sigma2 <- colSums(phi_ic * psi_i * outer(read.count,com.param$mu, FUN="-")^2) / topsum
 
 for (segment in segment.names){
   # for each segment j, there are k weightings
@@ -152,14 +191,17 @@ for (segment in segment.names){
   
   w.k[indexes,] <- rep(topsum / sum(1-psi_i[indexes]), each=length(indexes))
 
-  mu.k[indexes,] <- rep(colSums(temp.sum * yi.vals[indexes]) /  topsum, each=length(indexes))
+  mu.k[indexes,] <- rep(colSums(temp.sum * read.count[indexes]) /  topsum, each=length(indexes))
   
-  sigma2.k[indexes,] <- rep(colSums(temp.sum * (yi.vals[indexes] - mu.k[indexes,])^2) /  topsum, each=length(indexes))
+  sigma2.k[indexes,] <- rep(colSums(temp.sum * (read.count[indexes] - mu.k[indexes,])^2) /  topsum, each=length(indexes))
 
 }
 
 iter.count <- iter.count + 1
 
-plot.components()
+} # EM updates repetition loop
 
-} # EM repetition loop
+return(get.output.parameters())
+
+}# end of fit.model function
+
