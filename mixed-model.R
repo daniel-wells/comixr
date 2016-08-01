@@ -170,7 +170,9 @@ return(parse.output.parameters(com.param,rho,w.k,mu.k,sigma2.k,segment.indicies,
 }# end of fit.model function
 
 
-# Simulate test data, 2 segments, each with 4 components, 2 shared and 2 unique
+###### Example code / Tests
+
+# Simulate baisc well seperated gaussian test data, 2 segments, each with 4 components, 2 shared and 2 unique
 
 # Common components
 comp1.vals <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5),seg="seg1")
@@ -186,24 +188,42 @@ comp6.vals <- data.table(comp = "D", vals = rnorm(1000, mean = 3, sd = 0.5),seg=
 comp7.vals <- data.table(comp = "E", vals = rnorm(1500, mean = 10, sd = 0.5),seg="seg1")
 comp8.vals <- data.table(comp = "F", vals = rnorm(1500, mean = 12, sd = 0.5),seg="seg2")
 
-test.data <- bind_rows(comp1.vals,comp2.vals,comp3.vals,comp4.vals,comp5.vals,comp6.vals,comp7.vals,comp8.vals)
+test.data.basic <- bind_rows(comp1.vals,comp2.vals,comp3.vals,comp4.vals,comp5.vals,comp6.vals,comp7.vals,comp8.vals)
 
 # Overall histogram per segment
-ggplot(vals.df, aes(vals)) +
+ggplot(test.data.basic, aes(vals)) +
   geom_density() +
   facet_wrap(~seg,nrow = 2)
 
 # Histogram broken down by true components
-ggplot(vals.df, aes(vals, colour = comp)) +
+ggplot(test.data.basic, aes(vals, colour = comp)) +
   geom_freqpoly(binwidth=0.1) +
   facet_wrap(~seg,nrow = 2)
 
-initial.parameters <- data.table(
+initial.parameters.basic <- data.table(
   w=c(0.5),
   mu=c(3.5,10,2,12),
   sigma2=c(0.6^2),
   component.type=c("common","common","specific","specific"))
 
-output <- fit.model(test.data,c(0.5,0.5),initial.parameters)
+output.test.basic <- fit.model(test.data.basic,c(0.5,0.5),initial.parameters.basic)
 
-plot.components(test.data,output)
+plot.components(test.data.basic,output.test.basic)
+
+### Simulate realistic read count data using negative binomial, 4 segments, 2 normal, 1 amp, 1 del. Parameters from real data
+
+test.data.realistic <- bind_rows(
+  data.table(comp = "A", vals = rnbinom(5000, size=2.7, mu = 16.5),seg="normal.1"),
+  data.table(comp = "A", vals = rnbinom(5000, size=3, mu = 36),seg="amplified.1"),
+  data.table(comp = "A", vals = rnbinom(5000, size=2.9, mu = 8.4),seg="deleted.1"),
+  data.table(comp = "A", vals = rnbinom(5000, size=2.7, mu = 16.5),seg="normal.2"))
+
+initial.parameters.realistic <- data.table(
+  w=c(0.5),
+  mu=c(4,7,10,15,25,40,50,1,2),
+  sigma2=c(8^2),
+  component.type=c(rep("common",5),rep("specific",4)))
+
+output.realistic <- fit.model(test.data.realistic,c(0.5,0.5,0.5,0.5),initial.parameters.realistic)
+
+plot.components(test.data.realistic,output.realistic)
