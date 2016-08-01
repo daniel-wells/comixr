@@ -7,11 +7,11 @@ options(scipen = 999) # don't print scientific notation numbers
 set.seed(1)
 
 # parse learned/output parameters
-get.output.parameters <- function(){
+parse.output.parameters <- function(com.param,rho,w.k,mu.k,sigma2.k,segment.indicies,iter.count){
   
-  output.parameters <- data.table(rho=numeric(),w=numeric(),rho_w=numeric(),mu=numeric(),sigma2=numeric(),component.type=character(),segment=character())
+  output.parameters <- data.table(rho=numeric(),w=numeric(),rho_w=numeric(),mu=numeric(),sigma2=numeric(),component.type=character(),segment=character(),iteration=numeric())
   
-  for (segment in segment.names){
+  for (segment in names(segment.indicies)){
     indexes <- segment.indicies[[segment]]
     
     output.parameters.temp <- data.frame(
@@ -21,7 +21,8 @@ get.output.parameters <- function(){
       mu = c(com.param$mu,unique(mu.k[indexes,])),
       sigma2 = c(com.param$sigma2,unique(sigma2.k[indexes,])),
       component.type = c(rep("common",length(com.param$mu)),rep("specific",length(unique(mu.k[indexes,])))),
-      segment = segment
+      segment = segment,
+      iteration = iter.count
     )
     
     output.parameters <- rbind(output.parameters,output.parameters.temp)
@@ -163,7 +164,7 @@ iter.count <- iter.count + 1
 
 } # EM updates repetition loop
 
-return(get.output.parameters())
+return(parse.output.parameters(com.param,rho,w.k,mu.k,sigma2.k,segment.indicies,iter.count))
 
 }# end of fit.model function
 
