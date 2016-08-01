@@ -156,11 +156,12 @@ for (segment in segment.names){
 
   mu.k[indexes,] <- rep(colSums(temp.sum * read.count[indexes]) /  topsum, each=length(indexes))
   
-  sigma2.k[indexes,] <- rep(colSums(temp.sum * (read.count[indexes] - mu.k[indexes,])^2) /  topsum, each=length(indexes))
-
+  sigma2.k[indexes,] <- 0.01 + rep(colSums(temp.sum * (read.count[indexes] - mu.k[indexes,])^2) /  topsum, each=length(indexes))
+  # the + 0.01 prevents sigma2 -> 0 which can cause dnorm() to -> Inf e.g dnorn(47,47,0), which causes NaN (inf/inf) which propogates to everything -> NaN!
 }
 
 iter.count <- iter.count + 1
+print(iter.count)
 
 } # EM updates repetition loop
 
