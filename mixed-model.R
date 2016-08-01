@@ -1,10 +1,7 @@
 library("ggplot2")
-library("dplyr")
-library("reshape2")
+#library("dplyr")
+#library("reshape2")
 library("data.table")
-
-options(scipen = 999) # don't print scientific notation numbers
-set.seed(1)
 
 # parse learned/output parameters
 parse.output.parameters <- function(com.param,rho,w.k,mu.k,sigma2.k,segment.indicies,iter.count){
@@ -33,26 +30,41 @@ parse.output.parameters <- function(com.param,rho,w.k,mu.k,sigma2.k,segment.indi
 # Generic Plot function
 plot.components <- function(vals.df,output.parameters){
   
-  temp <- data.table(vals=numeric(),comp=character(),seg=character(),component.type=character())
+  temp <- data.table(vals=numeric(),comp=character(),seg=character(),component.type=character(),source=character())
   
   for (component in 1:nrow(output.parameters)){
-    temp <- rbind(temp,data.table(vals=rnorm(7000*output.parameters[component]$rho_w, 
+    temp <- rbind(temp,data.table(vals=c(rnorm(70000*output.parameters[component]$rho_w, 
                                              mean = output.parameters[component]$mu, 
-                                             sd = output.parameters[component]$sigma2^0.5),
+                                             sd = output.parameters[component]$sigma2^0.5),0),
                                             comp=component,
                                             seg=output.parameters[component]$segment,
-                                            component.type=output.parameters[component]$component.type))
+                                            component.type=output.parameters[component]$component.type,
+                                            source="Inferred"))
   }
   
   vals.df$component.type <- "Original Data"
+  vals.df$source <- "Original Data"
   
   temp <- rbind(temp,vals.df)
   
-  ggplot(temp, aes(vals, group = comp,colour=component.type)) +
+  # ggplot(temp, aes(vals, group = comp,colour=component.type)) +
+  #   geom_freqpoly(binwidth=0.1) +
+  #   ggtitle(paste("iteration:",iter.count)) +
+  #   scale_colour_manual(values = c("blue","red","black")) +
+  #   facet_wrap(~seg,nrow = 2)
+
+  ggplot(temp, aes(vals, colour=component.type)) +
     geom_freqpoly(binwidth=0.1) +
-    ggtitle(paste("iteration:",iter.count)) +
+    ggtitle(paste("iteration:",unique(output.parameters$iteration))) +
     scale_colour_manual(values = c("blue","red","black")) +
-    facet_wrap(~seg,nrow = 2)
+    facet_grid(source~seg,scales="free_y")
+
+  
+  # ggplot(temp, aes(vals, colour=component.type)) +
+  #   geom_density() +
+  #   ggtitle(paste("iteration:",iter.count)) +
+  #   scale_colour_manual(values = c("blue","red","black")) +
+  #   facet_wrap(~seg,nrow = 2)
 }
 
 # input required: 
