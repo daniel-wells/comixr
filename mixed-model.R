@@ -239,9 +239,9 @@ test.data.realistic <- bind_rows(
 
 initial.parameters.realistic <- data.table(
   w=c(0.5),
-  mu=c(4,7,10,15,25,40,50,1,2),
+  mu=c(4,7,10,15,25,40,50,300,1,2),
   sigma2=c(8^2),
-  component.type=c(rep("common",5),rep("specific",4)))
+  component.type=c(rep("common",5),rep("specific",5)))
 
 output.realistic <- fit.model(test.data.realistic,rho=0.5,initial.parameters.realistic)
 
