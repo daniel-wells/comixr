@@ -4,22 +4,21 @@ library("ggplot2")
 library("data.table")
 
 # parse learned/output parameters
-parse.output.parameters <- function(com.param,rho,w.k,mu.k,sigma2.k,segment.indicies,iter.count){
-  
+parse.output.parameters <- function(output){
+
   output.parameters <- data.table(rho=numeric(),w=numeric(),rho_w=numeric(),mu=numeric(),sigma2=numeric(),component.type=character(),segment=character(),iteration=numeric())
   
-  for (segment in names(segment.indicies)){
-    indexes <- segment.indicies[[segment]]
+  for (segment in 1:nrow(output$w.specific)){
     
     output.parameters.temp <- data.frame(
       rho = as.numeric(rho[segment]),
-      w = c(com.param$w,unique(w.k[indexes,])),
-      rho_w = c((1-rho[segment])*com.param$w,rho[segment]*unique(w.k[indexes,])),
-      mu = c(com.param$mu,unique(mu.k[indexes,])),
-      sigma2 = c(com.param$sigma2,unique(sigma2.k[indexes,])),
-      component.type = c(rep("common",length(com.param$mu)),rep("specific",length(unique(mu.k[indexes,])))),
+      w = c(output$w.common,output$w.specific[segment,]),
+      rho_w = c((1-rho[segment])*output$w.common,rho[segment]*output$w.specific[segment,]),
+      mu = c(output$mu.common,output$mu.specific[segment,]),
+      sigma2 = c(output$sigma2.common,output$sigma2.specific[segment,]),
+      component.type = c(rep("common",length(output$mu.common)),rep("specific",length(output$mu.specific[segment,]))),
       segment = segment,
-      iteration = iter.count
+      iteration = output$iteration
     )
     
     output.parameters <- rbind(output.parameters,output.parameters.temp)
@@ -184,7 +183,14 @@ print(iter.count)
 
 } # EM updates repetition loop
 
-return(parse.output.parameters(com.param,rho,w.k,mu.k,sigma2.k,segment.indicies,iter.count))
+w.k.u <- unique(w.k)
+mu.k.u <- unique(mu.k)
+sigma2.k.u <- unique(sigma2.k)
+
+# more raw output
+output <- list(w.specific=w.k.u,mu.specific=mu.k.u,sigma2.specific=sigma2.k.u,w.common=com.param$w,mu.common=com.param$mu,sigma2.common=com.param$sigma2,rho=rho,iteration=iter.count)
+
+return(output)
 
 }# end of fit.model function
 
