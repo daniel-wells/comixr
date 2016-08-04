@@ -145,6 +145,20 @@ plot.breakpoints <- function(data,breakpoints,title="",average){
   #geom_line(aes(pos,bin.median),colour="blue",size=0.1) +
 }
 
+# plot rho over geonomic segments by mixed model output
+plot.rho <- function(data,model.output){
+  model.output$segment.no <- as.integer(output.chr6$segment)
+  setkey(model.output,segment.no)
+  setkey(data,segment.no)
+  data <- unique(model.output[,.(rho,segment.no)])[data[,.(pos,segment.no)]]
+  
+  P <- ggplot(data, aes(pos,rho))+
+    ylim(0,1) +
+  ylab("Rho") +
+  xlab("Genomic Coordinate") +
+  geom_line(colour="red",size=1.5)
+}
+
 # convert segment snp number to genomic coordinates
 BPs.bulkDP <- bulkDP[chr==6][cpts(cptDP)]$pos
 BPs.bulkStandard <- bulkStandard[chr==6][cpts(cptST)]$pos
@@ -177,6 +191,11 @@ bulkStandard[chr==6 & is.na(segment.mode)]
 
 # compare segment modes of normal vs digipico sequencing
 grid.arrange(grobs=list(plot.breakpoints(bulkStandard,BPs.bulkStandard,"BinSeg - standard",Mode(bulkStandard[chr==6]$total)),
+                        plot.breakpoints(bulkDP,BPs.bulkDP,"BinSeg - DP",Mode(bulkDP[chr==6]$total))),
+             layout_matrix=rbind(c(1),c(2)))
+
+# compare rho to mode per segment
+grid.arrange(grobs=list(plot.rho(bulkDP[chr==6],chr6.output),
                         plot.breakpoints(bulkDP,BPs.bulkDP,"BinSeg - DP",Mode(bulkDP[chr==6]$total))),
              layout_matrix=rbind(c(1),c(2)))
 
