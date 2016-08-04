@@ -118,6 +118,7 @@ for (row in 1:n.specific.components){
 }
 
 psi_i <- rep(0.5,length(read.count))
+likelihood.byiter <- numeric()
 
 iter.count <- 0
 
@@ -136,10 +137,18 @@ common <- apply(com.param, 1, function(params){ params['w'] * dnorm(read.count, 
 # output i x k matrix
 specific <- w.k * dnorm(read.count, mu.k, sigma2.k^0.5)
 
+
+likelihood.vec <- numeric()
+
 for (segment in segment.names){
   indexes <- segment.indicies[[segment]]
-  psi_i[indexes] <- ( (1-rho[segment]) * rowSums(common[indexes,]) ) / (( (1-rho[segment]) * rowSums(common[indexes,]) ) + rho[segment] * rowSums(specific[indexes,]) )
+  top.sum <- (1-rho[segment]) * rowSums(common[indexes,])
+  bottom.sum <- top.sum + (rho[segment] * rowSums(specific[indexes,]))
+  psi_i[indexes] <- top.sum / ( bottom.sum )
+  likelihood.vec <- c(likelihood.vec,bottom.sum)
 }
+
+likelihood.byiter <- c(likelihood.byiter,sum(log(likelihood.vec)))
 
 # sometimes dorm gives 0 when no common/specific components nearby, which can result in NaN when /0, so add a tiny probability back in
 common[which(rowSums(common)==0),] <- 1e-15
@@ -180,8 +189,13 @@ for (segment in segment.names){
   # the + 0.01 prevents sigma2 -> 0 which can cause dnorm() to -> Inf e.g dnorn(47,47,0), which causes NaN (inf/inf) which propogates to everything -> NaN!
 }
 
+
 iter.count <- iter.count + 1
-print(iter.count)
+print(paste("Iteration:",iter.count))
+
+if (iter.count>1){
+if (min(abs(diff(likelihood.byiter))) < 50){break}
+}
 
 } # EM updates repetition loop
 
@@ -190,7 +204,7 @@ mu.k.u <- unique(mu.k)
 sigma2.k.u <- unique(sigma2.k)
 
 # more raw output
-output <- list(w.specific=w.k.u,mu.specific=mu.k.u,sigma2.specific=sigma2.k.u,w.common=com.param$w,mu.common=com.param$mu,sigma2.common=com.param$sigma2,rho=rho,iteration=iter.count)
+output <- list(w.specific=w.k.u,mu.specific=mu.k.u,sigma2.specific=sigma2.k.u,w.common=com.param$w,mu.common=com.param$mu,sigma2.common=com.param$sigma2,rho=rho,iteration=iter.count,likelihood=likelihood.byiter)
 
 return(output)
 
@@ -256,12 +270,13 @@ output.realistic <- fit.model(test.data.realistic,rho=0.5,initial.parameters.rea
 plot.components(test.data.realistic,output.realistic)
 
 # for debugging enter data manually
-# vals.df <- test.input
+# vals.df <- chr6.input
 # input.parameters <- initial.parameters.realistic
-# rho <- rep(c(0.5),21)
+# rho.input <- 0.5
 
 ### fit actual data to model
 chr6.input <- bulkDP[chr==6 & segment.no %in% c(1:21),.(vals=total,seg=as.character(segment.no))]
-chr6.output <- fit.model(chr6.input,rho=0.5,initial.parameters.realistic,init.max=10)
+chr6.output <- fit.model(chr6.input,rho=0.5,initial.parameters.realistic)
+plot(chr6.output$likelihood[2:length(chr6.output$likelihood)])
 chr6.input$comp <- "A"
 plot.components(chr6.input[seg==16],parse.output.parameters(chr6.output)[segment=="16"])
