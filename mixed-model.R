@@ -69,9 +69,9 @@ plot.components <- function(vals.df,output.parameters){
 
 # input required: 
 # 1) data.frame of read counts and segment name for each position
-# 2) vector of numeric initial rho, one per segment
+# 2) initial rho
 # 3) data.frame of initial parameters for each component, both common and specific
-# fit.model(data=vals.df,rho=c(0.5,0.5),input.parameters=initial.parameters,init.max=40)
+# fit.model(data=vals.df,rho=0.5,input.parameters=initial.parameters,init.max=40)
 # returns a data frame of output parameters
 
 fit.model <- function(vals.df,rho.input,input.parameters,init.max=40){
@@ -93,9 +93,9 @@ read.count <- vals.df$vals
 
 ## parse input parameters
 
-# for each segment
-stopifnot(length(segment.indicies)==length(rho.input))
-rho <- rho.input
+# rho parameter for each segment
+rho <- rep(rho.input,length(segment.indicies))
+stopifnot(length(segment.indicies)==length(rho))
 names(rho) <- segment.names
 
 # set common component parameters, one per common component
@@ -218,7 +218,7 @@ initial.parameters.basic <- data.table(
   sigma2=c(0.6^2),
   component.type=c("common","common","specific","specific"))
 
-output.test.basic <- fit.model(test.data.basic,c(0.5,0.5),initial.parameters.basic)
+output.test.basic <- fit.model(test.data.basic,rho=0.5,initial.parameters.basic)
 
 plot.components(test.data.basic,output.test.basic)
 
@@ -236,6 +236,6 @@ initial.parameters.realistic <- data.table(
   sigma2=c(8^2),
   component.type=c(rep("common",5),rep("specific",4)))
 
-output.realistic <- fit.model(test.data.realistic,c(0.5,0.5,0.5,0.5),initial.parameters.realistic)
+output.realistic <- fit.model(test.data.realistic,rho=0.5,initial.parameters.realistic)
 
 plot.components(test.data.realistic,output.realistic)
