@@ -140,9 +140,16 @@ for (segment in segment.names){
   psi_i[indexes] <- ( (1-rho[segment]) * rowSums(common[indexes,]) ) / (( (1-rho[segment]) * rowSums(common[indexes,]) ) + rho[segment] * rowSums(specific[indexes,]) )
 }
 
+# sometimes dorm gives 0 when no common/specific components nearby, which can result in NaN when /0, so add a tiny probability back in
+common[which(rowSums(common)==0),] <- 1e-15
+specific[which(rowSums(specific)==0),] <- 1e-15
+
 phi_ic <- common/rowSums(common)
 
 nu_ik <- specific/rowSums(specific)
+
+# check for na values
+stopifnot(sum(is.na(phi_ic))+sum(is.na(nu_ik))==0)
 
 #### M Updates
 
