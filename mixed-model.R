@@ -11,9 +11,9 @@ parse.output.parameters <- function(output){
   for (segment in 1:nrow(output$w.specific)){
     
     output.parameters.temp <- data.frame(
-      rho = as.numeric(rho[segment]),
+      rho = as.numeric(output$rho[segment]),
       w = c(output$w.common,output$w.specific[segment,]),
-      rho_w = c((1-rho[segment])*output$w.common,rho[segment]*output$w.specific[segment,]),
+      rho_w = c((1-output$rho[segment])*output$w.common,output$rho[segment]*output$w.specific[segment,]),
       mu = c(output$mu.common,output$mu.specific[segment,]),
       sigma2 = c(output$sigma2.common,output$sigma2.specific[segment,]),
       component.type = c(rep("common",length(output$mu.common)),rep("specific",length(output$mu.specific[segment,]))),
