@@ -108,6 +108,8 @@ print(paste(nrow(input.parameters[component.type=="specific"]),"common component
 
 # initialise segment specific parameter holding matricies
 mu.k <- sigma2.k <- w.k <- matrix(nrow=length(read.count),ncol=n.specific.components)
+# although these could be a simple j*k matrix, we're already iterating through segments in
+# the M step so may as well create the whole matrix required by the dnorm E step below 
 
 for (row in 1:n.specific.components){
   w.k[,row] <- input.parameters[component.type=="specific"][row]$w
@@ -252,3 +254,14 @@ initial.parameters.realistic <- data.table(
 output.realistic <- fit.model(test.data.realistic,rho=0.5,initial.parameters.realistic)
 
 plot.components(test.data.realistic,output.realistic)
+
+# for debugging enter data manually
+# vals.df <- test.input
+# input.parameters <- initial.parameters.realistic
+# rho <- rep(c(0.5),21)
+
+### fit actual data to model
+chr6.input <- bulkDP[chr==6 & segment.no %in% c(1:21),.(vals=total,seg=as.character(segment.no))]
+chr6.output <- fit.model(chr6.input,rho=0.5,initial.parameters.realistic,init.max=10)
+chr6.input$comp <- "A"
+plot.components(chr6.input[seg==16],parse.output.parameters(chr6.output)[segment=="16"])
