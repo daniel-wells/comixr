@@ -35,7 +35,6 @@ sampleDP <- summarise.data(sampleDP)
 ### sanity check data
 # no SNPs should have more than one base with numbers in
 bulkDP[,zero.allele:=sum(a==0,c==0,t==0,g==0),by=c("chr","pos")]
-str(bulkDP[,zero.allele:=sum(a==0,c==0,t==0,g==0),by=pos])
 bulkDP[zero.allele!=3 & zero.allele!=4]
 
 # how many snps with zero reads in each sample
@@ -88,7 +87,7 @@ plot.genomic.loadings <- function(temp,title){
     xlab("Genomic Coordinate")
 
 
-#     
+#   BAF plot
 #   P <- ggplot(temp, aes(genomic_position,BAF)) +
 #     geom_point(size=0.5,alpha=0.01,aes(color=chr)) +
 #     scale_colour_manual(values =rep_len(c("black", "skyblue4"),23))
@@ -96,6 +95,7 @@ plot.genomic.loadings <- function(temp,title){
 
 summary(bulkStandard)
 
+# plot binned median over points for WGS and DigiPico
 grid.arrange(grobs=list(plot.genomic.loadings(bulkStandard,"Bulk tumour, Standard WGS"),
                         plot.genomic.loadings(bulkDP,"Bulk tumour, DigiPico Sequencing")),
              layout_matrix=rbind(c(1),c(2)))
@@ -175,6 +175,7 @@ bulkStandard[chr==6 & !is.na(segment.no),segment.mode:=Mode(total),by=c("chr","s
 bulkDP[chr==6 & is.na(segment.mode)]
 bulkStandard[chr==6 & is.na(segment.mode)]
 
+# compare segment modes of normal vs digipico sequencing
 grid.arrange(grobs=list(plot.breakpoints(bulkStandard,BPs.bulkStandard,"BinSeg - standard",Mode(bulkStandard[chr==6]$total)),
                         plot.breakpoints(bulkDP,BPs.bulkDP,"BinSeg - DP",Mode(bulkDP[chr==6]$total))),
              layout_matrix=rbind(c(1),c(2)))
