@@ -38,7 +38,7 @@ component8 <- data.table(comp = "F", vals = rnorm(1500, mean = 12, sd = 0.5),seg
 
 test.data.basic <- rbind(component1,component2,component3,component4,component5,component6,component7,component8)
 
-knitr::kable(head(test.data.basic, 10))
+knitr::kable(head(test.data.basic, 5))
 
 ```
 
@@ -79,16 +79,15 @@ output.test.basic <- fit.model(test.data.basic[,.(vals,seg)], rho=0.5, initial.p
 ```
 
 We can then visualise the result using the plot.components() function.
-```{r}
+```{r,fig.width=7}
 plot.components(test.data.basic,output.test.basic)
-
 ```
 
 ## A more real life example
 
 Simulate realistic read count data using negative binomial, 4 segments, 2 normal, 1 amp, 1 del. Parameters from real data
 
-```{r}
+```{r,fig.width=7}
 test.data.realistic <- rbind(
   data.table(comp = "A", vals = rnbinom(5000, size=2.7, mu = 16.5),seg="normal.1"),
   data.table(comp = "A", vals = rnbinom(5000, size=3, mu = 36),seg="amplified.1"),
