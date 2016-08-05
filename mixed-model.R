@@ -200,9 +200,16 @@ if (min(abs(diff(likelihood.byiter))) < break.parameter){print("Done, saving par
 
 } # EM updates repetition loop
 
-w.k.u <- unique(w.k)
-mu.k.u <- unique(mu.k)
-sigma2.k.u <- unique(sigma2.k)
+# parse component specific parameters
+w.k.u <- mu.k.u <- sigma2.k.u <- matrix(nrow=length(segment.names),ncol=n.specific.components)
+
+for (segment in 1:length(segment.names)){
+  # for each segment j, there are k weightings
+  indexes <- segment.indicies[[segment.names[segment]]]
+  w.k.u[segment,] <- unique(w.k[indexes,])
+  mu.k.u[segment,] <- unique(mu.k[indexes,])
+  sigma2.k.u[segment,] <- unique(sigma2.k[indexes,])
+}
 
 # more raw output
 output <- list(w.specific=w.k.u,mu.specific=mu.k.u,sigma2.specific=sigma2.k.u,w.common=com.param$w,mu.common=com.param$mu,sigma2.common=com.param$sigma2,rho=unname(rho),iteration=iter.count,likelihood=likelihood.byiter,segment.names=segment.names)
