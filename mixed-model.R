@@ -80,6 +80,8 @@ fit.model <- function(vals.df,rho.input,input.parameters,init.max=40,break.param
 ## split input read count data frame into 2: 
 # 1) a list of indexes specifying which read count is in which segment
 # 2) a vector of read counts
+stopifnot(ncol(vals.df)==2)
+setnames(vals.df,names(vals.df),c("vals","seg"))
 
 # get index ranges of each segment
 segment.indicies <- vals.df[,.(index = list(.I)),by=seg]
@@ -247,9 +249,9 @@ initial.parameters.basic <- data.table(
   sigma2=c(0.6^2),
   component.type=c("common","common","specific","specific"))
 
-output.test.basic <- fit.model(test.data.basic,rho=0.5,initial.parameters.basic)
+output.test.basic <- fit.model(test.data.basic[,.(vals,seg)],rho=0.5,initial.parameters.basic)
 
-plot.components(test.data.basic,output.test.basic)
+plot.components(test.data.basic,parse.output.parameters(output.test.basic))
 
 ### Simulate realistic read count data using negative binomial, 4 segments, 2 normal, 1 amp, 1 del. Parameters from real data
 
