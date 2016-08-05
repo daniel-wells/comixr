@@ -74,6 +74,7 @@ plot.components <- function(vals.df,output.parameters){
 # returns a data frame of output parameters
 
 fit.model <- function(vals.df,rho.input,input.parameters,init.max=40){
+fit.model <- function(vals.df,rho.input,input.parameters,init.max=40,break.parameter=50){
 
 ### INITIALISATION
 
@@ -194,7 +195,7 @@ iter.count <- iter.count + 1
 print(paste("Iteration:",iter.count))
 
 if (iter.count>1){
-if (min(abs(diff(likelihood.byiter))) < 50){break}
+if (min(abs(diff(likelihood.byiter))) < break.parameter){break}
 }
 
 } # EM updates repetition loop
