@@ -24,7 +24,18 @@ parse.output.parameters <- function(output){
   return(output.parameters)
 }
 
-# Generic Plot function
+#' Plot fitted shared component gaussian mixed model.
+#'
+#' \code{plot.components} Returns histograms of fitted gaussians and original data by dataset.
+#'
+#' @param vals.df original data, identical to fit.model() input
+#' @param output.parameters, list of parameters, output of fit.model()
+#'
+#' @examples
+#' plot.components(chr6.input[seg==16],parse.output.parameters(chr6.output)[segment=="16"])
+#' @export
+#' @import ggplot2
+
 plot.components <- function(vals.df,output.parameters){
   
   temp <- data.table(vals=numeric(),comp=character(),seg=character(),component.type=character(),source=character())
@@ -64,12 +75,25 @@ plot.components <- function(vals.df,output.parameters){
   #   facet_wrap(~seg,nrow = 2)
 }
 
-# input required: 
-# 1) data.frame of read counts and segment name for each position
-# 2) initial rho
-# 3) data.frame of initial parameters for each component, both common and specific
-# fit.model(data=vals.df,rho=0.5,input.parameters=initial.parameters,init.max=40)
-# returns a data frame of output parameters
+#' Fit shared component gaussian mixed model.
+#'
+#' \code{fit.model} returns parameters for gassians fitted to the data.
+#'
+#'
+#' @param read.count data.frame with two columns, first being numeric read.counts,
+#'  and second being charachter segment names. Column names can be whatever.
+#'
+#' @param rho.input Numeric value for initial value of rho parameter
+#' @param input.parameters
+#' @param init.max
+#' @param break.parameter Numeric value, when the difference in log likelihood 
+#' between two iterations is less than this value the iteration will stop
+#' @return A list of parameters
+#'
+#' @examples
+#' # see vignette
+#' @export
+#' @import data.table
 
 fit.model <- function(vals.df,rho.input,input.parameters,init.max=40,break.parameter=50){
 
