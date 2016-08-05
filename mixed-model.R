@@ -137,6 +137,9 @@ common <- apply(com.param, 1, function(params){ params['w'] * dnorm(read.count, 
 # output i x k matrix
 specific <- w.k * dnorm(read.count, mu.k, sigma2.k^0.5)
 
+# sometimes dorm gives 0 when no common/specific components nearby, which can result in NaN when /0, so add a tiny probability back in
+common[which(rowSums(common)==0),] <- 1e-15
+specific[which(rowSums(specific)==0),] <- 1e-15
 
 likelihood.vec <- numeric()
 
@@ -150,16 +153,13 @@ for (segment in segment.names){
 
 likelihood.byiter <- c(likelihood.byiter,sum(log(likelihood.vec)))
 
-# sometimes dorm gives 0 when no common/specific components nearby, which can result in NaN when /0, so add a tiny probability back in
-common[which(rowSums(common)==0),] <- 1e-15
-specific[which(rowSums(specific)==0),] <- 1e-15
 
 phi_ic <- common/rowSums(common)
 
 nu_ik <- specific/rowSums(specific)
 
 # check for na values
-stopifnot(sum(is.na(phi_ic))+sum(is.na(nu_ik))==0)
+stopifnot(sum(is.na(phi_ic))+sum(is.na(nu_ik))+sum(is.na(phi_ic))==0)
 
 #### M Updates
 
