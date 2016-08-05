@@ -2,7 +2,7 @@ library("ggplot2")
 library("data.table")
 
 # parse learned/output parameters
-parse.output.parameters <- function(output){
+parse.output.parameters <- function(output,segment.subset){
 
   output.parameters <- data.table(rho=numeric(),w=numeric(),rho_w=numeric(),mu=numeric(),sigma2=numeric(),component.type=character(),segment=character(),iteration=numeric())
   
@@ -21,6 +21,11 @@ parse.output.parameters <- function(output){
     
     output.parameters <- rbind(output.parameters,output.parameters.temp)
   }
+  
+  if(!is.null(segment.subset)){
+    output.parameters <- output.parameters[segment %in% segment.subset]
+  }
+
   return(output.parameters)
 }
 
@@ -30,13 +35,19 @@ parse.output.parameters <- function(output){
 #'
 #' @param vals.df original data, identical to fit.model() input
 #' @param output.parameters, list of parameters, output of fit.model()
+#' @param segment.subset, optional, list of segment names to plot, default uses all segments
 #'
 #' @examples
-#' plot.components(chr6.input[seg==16],parse.output.parameters(chr6.output)[segment=="16"])
+#' plot.components(input.data,output.data,segment.subset="segment16")
 #' @export
 #' @import ggplot2
 
-plot.components <- function(vals.df,output.parameters){
+plot.components <- function(vals.df,output.parameters,segment.subset=NULL){
+  output.parameters <- parse.output.parameters(output.parameters,segment.subset)
+  
+  if(!is.null(segment.subset)){
+    vals.df <- vals.df[seg %in% segment.subset]
+  }
   
   temp <- data.table(vals=numeric(),comp=character(),seg=character(),component.type=character(),source=character())
   
