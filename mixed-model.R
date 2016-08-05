@@ -229,7 +229,7 @@ comp6.vals <- data.table(comp = "D", vals = rnorm(1000, mean = 3, sd = 0.5),seg=
 comp7.vals <- data.table(comp = "E", vals = rnorm(1500, mean = 10, sd = 0.5),seg="seg1")
 comp8.vals <- data.table(comp = "F", vals = rnorm(1500, mean = 12, sd = 0.5),seg="seg2")
 
-test.data.basic <- bind_rows(comp1.vals,comp2.vals,comp3.vals,comp4.vals,comp5.vals,comp6.vals,comp7.vals,comp8.vals)
+test.data.basic <- rbind(comp1.vals,comp2.vals,comp3.vals,comp4.vals,comp5.vals,comp6.vals,comp7.vals,comp8.vals)
 
 # Overall histogram per segment
 ggplot(test.data.basic, aes(vals)) +
