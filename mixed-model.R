@@ -1,6 +1,4 @@
 library("ggplot2")
-#library("dplyr")
-#library("reshape2")
 library("data.table")
 
 # parse learned/output parameters
@@ -196,7 +194,8 @@ iter.count <- iter.count + 1
 print(paste("Iteration:",iter.count))
 
 if (iter.count>1){
-if (min(abs(diff(likelihood.byiter))) < break.parameter){break}
+if (min(abs(diff(likelihood.byiter))) < break.parameter){print("Done, saving parameter estimates")
+  break}
 }
 
 } # EM updates repetition loop
