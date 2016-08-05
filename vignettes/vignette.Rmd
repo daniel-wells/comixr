@@ -1,0 +1,107 @@
+---
+title: "Shared Component Gaussian Mixture Model"
+author: "Daniel Wells"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Shared Component Gaussian Mixture Model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+A mixture of gaussian distibutions can be used to approximate a different non gaussian distribution. For example the hights of a population may be non-normal, but are well approximated by a mixture of two normal distributions which could represent the hights of sex. Sometimes you might have multiple datasets (or a single dataset segmented by some parameter) and you want to fit a gaussian mixture model to all data sets at once but for there to be some components which are shared across these data sets.
+
+```{r}
+devtools::load_all()
+```
+
+## Simulating Example Data
+
+Lets simulate some example data, two data sets, each with four components, two of which are shared across the data sets and two of which are unique to the data set.
+
+```{r}
+library(data.table)
+
+# Common components
+component1 <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5),seg="seg1")
+component2 <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5),seg="seg2")
+
+component3 <- data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5),seg="seg1")
+component4 <- data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5),seg="seg2")
+
+# Unique components
+component5 <- data.table(comp = "C", vals = rnorm(3000, mean = 1, sd = 0.5),seg="seg1")
+component6 <- data.table(comp = "D", vals = rnorm(1000, mean = 3, sd = 0.5),seg="seg2")
+
+component7 <- data.table(comp = "E", vals = rnorm(1500, mean = 10, sd = 0.5),seg="seg1")
+component8 <- data.table(comp = "F", vals = rnorm(1500, mean = 12, sd = 0.5),seg="seg2")
+
+test.data.basic <- rbind(component1,component2,component3,component4,component5,component6,component7,component8)
+
+knitr::kable(head(test.data.basic, 10))
+
+```
+
+Let's visualise the distribution of the two data sets broken down by component
+
+```{r,fig.width=7}
+library(ggplot2)
+ggplot(test.data.basic, aes(vals, colour = comp)) +
+  geom_freqpoly(binwidth=0.1) +
+  facet_wrap(~seg,nrow = 2)
+```
+
+We can also see the overall distributions:
+```{r,fig.width=7}
+ggplot(test.data.basic, aes(vals)) +
+  geom_density() +
+  facet_wrap(~seg,nrow = 2)
+```
+
+## Fitting the model
+
+To fit a shared gaussian mixture model to this data we need to specify the number of components in the model and the initial parameters for each component. w is the mixing weight of each component, mu the mean, and sigma2 the variance ($\sigma^2$)
+
+```{r}
+initial.parameters.basic <- data.table(
+  w=c(0.5),
+  mu=c(3.5,10,2,12),
+  sigma2=c(0.6^2),
+  component.type=c("common","common","specific","specific"))
+
+initial.parameters.basic
+```
+
+To fit the model pass the data (without the component labels), the initial rho, and the other componentwise initial parameters to the fit.model() function.
+
+```{r}
+output.test.basic <- fit.model(test.data.basic[,.(vals,seg)], rho=0.5, initial.parameters.basic)
+```
+
+We can then visualise the result using the plot.components() function.
+```{r}
+plot.components(test.data.basic,output.test.basic)
+
+```
+
+## A more real life example
+
+Simulate realistic read count data using negative binomial, 4 segments, 2 normal, 1 amp, 1 del. Parameters from real data
+
+```{r}
+test.data.realistic <- rbind(
+  data.table(comp = "A", vals = rnbinom(5000, size=2.7, mu = 16.5),seg="normal.1"),
+  data.table(comp = "A", vals = rnbinom(5000, size=3, mu = 36),seg="amplified.1"),
+  data.table(comp = "A", vals = rnbinom(5000, size=2.9, mu = 8.4),seg="deleted.1"),
+  data.table(comp = "A", vals = rnbinom(5000, size=2.7, mu = 16.5),seg="normal.2"))
+
+initial.parameters.realistic <- data.table(
+  w=c(0.5),
+  mu=c(4,7,10,15,25,40,50,300,1,2),
+  sigma2=c(8^2),
+  component.type=c(rep("common",5),rep("specific",5)))
+
+output.realistic <- fit.model(test.data.realistic[,.(vals,seg)],rho=0.5,initial.parameters.realistic)
+
+plot.components(test.data.realistic,output.realistic)
+```
