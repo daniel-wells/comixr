@@ -317,9 +317,3 @@ plot.components(test.data.realistic,output.realistic)
 # input.parameters <- initial.parameters.realistic
 # rho.input <- 0.5
 
-### fit actual data to model
-chr6.input <- bulkDP[chr==6 & segment.no %in% c(1:21),.(vals=total,seg=as.character(segment.no))]
-chr6.output <- fit.model(chr6.input,rho=0.5,initial.parameters.realistic)
-plot(chr6.output$likelihood[2:length(chr6.output$likelihood)])
-chr6.input$comp <- "A"
-plot.components(chr6.input[seg==16],parse.output.parameters(chr6.output)[segment=="16"])
