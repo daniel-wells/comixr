@@ -17,7 +17,7 @@ parse.output.parameters <- function(output){
       mu = c(output$mu.common,output$mu.specific[segment,]),
       sigma2 = c(output$sigma2.common,output$sigma2.specific[segment,]),
       component.type = c(rep("common",length(output$mu.common)),rep("specific",length(output$mu.specific[segment,]))),
-      segment = segment,
+      segment = output$segment.names[segment],
       iteration = output$iteration
     )
     
@@ -73,7 +73,6 @@ plot.components <- function(vals.df,output.parameters){
 # fit.model(data=vals.df,rho=0.5,input.parameters=initial.parameters,init.max=40)
 # returns a data frame of output parameters
 
-fit.model <- function(vals.df,rho.input,input.parameters,init.max=40){
 fit.model <- function(vals.df,rho.input,input.parameters,init.max=40,break.parameter=50){
 
 ### INITIALISATION
@@ -205,7 +204,7 @@ mu.k.u <- unique(mu.k)
 sigma2.k.u <- unique(sigma2.k)
 
 # more raw output
-output <- list(w.specific=w.k.u,mu.specific=mu.k.u,sigma2.specific=sigma2.k.u,w.common=com.param$w,mu.common=com.param$mu,sigma2.common=com.param$sigma2,rho=rho,iteration=iter.count,likelihood=likelihood.byiter)
+output <- list(w.specific=w.k.u,mu.specific=mu.k.u,sigma2.specific=sigma2.k.u,w.common=com.param$w,mu.common=com.param$mu,sigma2.common=com.param$sigma2,rho=unname(rho),iteration=iter.count,likelihood=likelihood.byiter,segment.names=segment.names)
 
 return(output)
 
