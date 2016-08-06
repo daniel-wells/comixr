@@ -180,8 +180,8 @@ likelihood.vec <- numeric()
 
 for (segment in segment.names){
   indexes <- segment.indicies[[segment]]
-  top.sum <- (1-rho[segment]) * rowSums(common[indexes,])
-  bottom.sum <- top.sum + (rho[segment] * rowSums(specific[indexes,]))
+  top.sum <- (1-rho[segment]) * rowSums(common[indexes,,drop=FALSE])
+  bottom.sum <- top.sum + (rho[segment] * rowSums(specific[indexes,,drop=FALSE]))
   psi_i[indexes] <- top.sum / ( bottom.sum )
   likelihood.vec <- c(likelihood.vec,bottom.sum)
 }
@@ -213,14 +213,14 @@ for (segment in segment.names){
   
   rho[segment] <- 1 - sum(psi_i[indexes])/length(indexes)
   
-  temp.sum <- (1-psi_i[indexes]) * nu_ik[indexes,]
+  temp.sum <- (1-psi_i[indexes]) * nu_ik[indexes,,drop=FALSE]
   topsum <- colSums(temp.sum) # for each component...
   
   w.k[indexes,] <- rep(topsum / sum(1-psi_i[indexes]), each=length(indexes))
 
   mu.k[indexes,] <- rep(colSums(temp.sum * read.count[indexes]) /  topsum, each=length(indexes))
   
-  sigma2.k[indexes,] <- 0.01 + rep(colSums(temp.sum * (read.count[indexes] - mu.k[indexes,])^2) /  topsum, each=length(indexes))
+  sigma2.k[indexes,] <- 0.01 + rep(colSums(temp.sum * (read.count[indexes] - mu.k[indexes,,drop=FALSE])^2) /  topsum, each=length(indexes))
   # the + 0.01 prevents sigma2 -> 0 which can cause dnorm() to -> Inf e.g dnorn(47,47,0), which causes NaN (inf/inf) which propogates to everything -> NaN!
 }
 
