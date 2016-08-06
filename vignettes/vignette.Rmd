@@ -15,7 +15,43 @@ A mixture of gaussian distibutions can be used to approximate a different non ga
 devtools::load_all()
 ```
 
-## Simulating Example Data
+## Simple Example
+
+Let's simulate two datasets, each with a common density at ~5 and with some noise component with mean and variance unique to each dataset.
+
+```{r}
+input <- rbind(data.table(vals = rnorm(2000, mean = 5.0, sd = 0.75),seg="data1"),
+               data.table(vals = rnorm(1000, mean = 0.5, sd = 1.0),seg="data1"),
+              data.table(vals = rnorm(2000, mean = 5.5, sd = 0.75),seg="data2"),
+              data.table(vals = rnorm(2000, mean = 4.0, sd = 3.0),seg="data2"))
+```
+
+We need to specify our initial components for each component type:
+
+```{r}
+initial.parameters <- data.table(
+  w = 0.5,
+  mu = c(6,4),
+  sigma2 = 1,
+  component.type = c("common","specific"))
+
+initial.parameters
+```
+
+Now we can fit the model:
+
+```{r}
+output <- fit.model(input, rho=0.5, initial.parameters)
+```
+
+And plot the results:
+
+```{r,fig.width=7}
+input$comp <- "Y"
+plot.components(input,output)
+```
+
+## Multiple common and specific components
 
 Lets simulate some example data, two data sets, each with four components, two of which are shared across the data sets and two of which are unique to the data set.
 
@@ -83,9 +119,9 @@ We can then visualise the result using the plot.components() function.
 plot.components(test.data.basic,output.test.basic)
 ```
 
-## A more real life example
+## Non gaussian underlying data
 
-Simulate realistic read count data using negative binomial, 4 segments, 2 normal, 1 amp, 1 del. Parameters from real data
+The model can also be fitted to data which isn't actually made from multiple gaussians at all. Simulate realistic read count data using negative binomial, 4 segments, 2 normal, 1 amp, 1 del. Parameters from real data
 
 ```{r,fig.width=7}
 test.data.realistic <- rbind(
