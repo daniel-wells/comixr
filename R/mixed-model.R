@@ -110,6 +110,11 @@ fit.model <- function(vals.df,rho.input,input.parameters,init.max=40,break.param
 
 ### INITIALISATION
 
+  if (any(input.parameters$component.type=="common") & any(input.parameters$component.type=="specific")){
+  } else {
+    stop("At least one common and one specific component required")
+  }
+
 ## split input read count data frame into 2: 
 # 1) a list of indexes specifying which read count is in which segment
 # 2) a vector of read counts
