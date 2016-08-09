@@ -197,7 +197,7 @@ bulkStandard[chr==6 & is.na(segment.mode)]
 #####
 
 ### fit actual data to model
-chr6.input <- bulkDP[chr==6 & segment.no %in% c(1:21),.(vals=total,seg=as.character(segment.no))]
+chr6.input <- bulkDP[chr==6 & segment.no %in% c(1:31),.(vals=total,seg=as.character(segment.no))]
 chr6.output <- fit.model(chr6.input,rho=0.5,initial.parameters.realistic)
 plot(chr6.output$likelihood[2:length(chr6.output$likelihood)])
 chr6.input$comp <- "A"
