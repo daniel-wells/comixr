@@ -2,7 +2,7 @@ library("ggplot2")
 library("data.table")
 
 # parse learned/output parameters
-parse.output.parameters <- function(output,segment.subset){
+parse.output.parameters <- function(output,segment.subset=NULL){
 
   output.parameters <- data.table(rho=numeric(),w=numeric(),rho_w=numeric(),mu=numeric(),sigma2=numeric(),component.type=character(),segment=character(),iteration=numeric())
   
@@ -143,7 +143,7 @@ com.param$component.type <- NULL
 
 n.specific.components <- nrow(input.parameters[component.type=="specific"])
 print(paste(n.specific.components,"segment specific components"))
-print(paste(nrow(input.parameters[component.type=="specific"]),"common components"))
+print(paste(nrow(input.parameters[component.type=="common"]),"common components"))
 
 
 # initialise segment specific parameter holding matricies
