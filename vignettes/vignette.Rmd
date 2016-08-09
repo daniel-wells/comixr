@@ -132,9 +132,9 @@ test.data.realistic <- rbind(
 
 initial.parameters.realistic <- data.table(
   w=c(0.5),
-  mu=c(4,7,10,15,25,40,50,300,1,2),
+  mu=c(3,4,6,8,10,13,17,20,25,40,50,300,1,2),
   sigma2=c(8^2),
-  component.type=c(rep("common",5),rep("specific",5)))
+  component.type=c(rep("common",9),rep("specific",5)))
 
 output.realistic <- fit.model(test.data.realistic[,.(vals,seg)],rho=0.5,initial.parameters.realistic)
 
