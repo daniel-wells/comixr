@@ -127,7 +127,7 @@ plot(segs, plot.type="w")
 library("changepoint")
 
 cptST <- cpt.meanvar(bulkStandard[chr==6]$total,test.stat="Normal",method="BinSeg",Q=20,minseglen=1500)
-cptDP <- cpt.meanvar(bulkDP[chr==6]$total,test.stat="Poisson",method="BinSeg",Q=20,minseglen=1500)
+cptDP <- cpt.meanvar(bulkDP[chr==6]$total,test.stat="Poisson",method="BinSeg",Q=30,minseglen=3000)
 
 # PELT versions
 # cptST <- cpt.meanvar(bulkStandard[chr==6]$total,test.stat="Normal",method="PELT",penalty="Manual",pen.value=10000)
