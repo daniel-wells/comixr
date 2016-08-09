@@ -7,6 +7,11 @@ library(ggplot2)
 library(caTools)
 library(gridExtra)
 
+Mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
 summarise.data <- function(data){
   data[,non.ref:=sum(a,c,t,g),by=c("chr","pos")]
   data[,total:=sum(ref,a,c,t,g),by=c("chr","pos")]
@@ -280,11 +285,6 @@ res2=Segmentor(bulkDP[chr==6]$total, model=3,Kmax=25) # 3=negative binomial
 BPs.bulkDP.segmentor3 <- bulkDP[chr==6][res2@breaks[20,]]$pos
 
 print(plot.breakpoints(bulkDP,BPs.bulkDP.segmentor3,"Segmentor3 - DP",Mode(bulkDP[chr==6]$total)))
-
-Mode <- function(x) {
-  ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
-}
 
 ####
 #### ecp
