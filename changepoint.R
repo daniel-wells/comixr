@@ -180,6 +180,14 @@ bulkStandard[chr==6 & is.na(segment.mode)]
 
 #####
 
+# common mu's from mclust on whole genome (+2 at start)
+initial.parameters.realistic <- data.table(
+  w=c(0.5),
+  mu=c(2,2.61,4.81,7.72,10.44,13.00,17.17,23.84,38.32,50,60,70,300,1),
+  sigma2=c(8^2),
+  component.type=c(rep("common",9),rep("specific",5)))
+
+
 ### fit actual data to model
 chr6.input <- bulkDP[chr==6 & segment.no %in% c(1:31),.(vals=total,seg=as.character(segment.no))]
 chr6.output <- fit.model(chr6.input,rho=0.5,initial.parameters.realistic)
