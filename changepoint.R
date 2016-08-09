@@ -152,7 +152,7 @@ plot.breakpoints <- function(data,breakpoints,title="",average){
 
 # plot rho over geonomic segments by mixed model output
 plot.rho <- function(data,model.output){
-  model.output$segment.no <- as.integer(output.chr6$segment)
+  model.output$segment.no <- as.integer(model.output$segment)
   setkey(model.output,segment.no)
   setkey(data,segment.no)
   data <- unique(model.output[,.(rho,segment.no)])[data[,.(pos,segment.no)]]
@@ -213,7 +213,7 @@ grid.arrange(grobs=list(plot.breakpoints(bulkStandard,BPs.bulkStandard,"BinSeg -
              layout_matrix=rbind(c(1),c(2)))
 
 # compare rho to mode per segment
-grid.arrange(grobs=list(plot.rho(bulkDP[chr==6],chr6.output),
+grid.arrange(grobs=list(plot.rho(bulkDP[chr==6],parse.output.parameters(chr6.output,segment.subset = NULL)),
                         plot.breakpoints(bulkDP,BPs.bulkDP,"BinSeg - DP",Mode(bulkDP[chr==6]$total))),
              layout_matrix=rbind(c(1),c(2)))
 
