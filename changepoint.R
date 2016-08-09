@@ -15,7 +15,6 @@ Mode <- function(x) {
 summarise.data <- function(data){
   data[,non.ref:=sum(a,c,t,g),by=c("chr","pos")]
   data[,total:=sum(ref,a,c,t,g),by=c("chr","pos")]
-  data[(non.ref+ref)>10,BAF.thresh:=non.ref/(non.ref+ref),by=c("chr","pos")]
   data[,BAF:=non.ref/(non.ref+ref),by=c("chr","pos")] # B allele freq.
   data[,running.mean:=runmean(total, k=500, alg="fast", endrule="keep", align = "center")]
   data[,running.median:=runmed(total, k=501)] 
@@ -98,7 +97,6 @@ plot.genomic.loadings <- function(temp,title){
 #     scale_colour_manual(values =rep_len(c("black", "skyblue4"),23))
 }
 
-summary(bulkStandard)
 
 # plot binned median over points for WGS and DigiPico
 grid.arrange(grobs=list(plot.genomic.loadings(bulkStandard,"Bulk tumour, Standard WGS"),
