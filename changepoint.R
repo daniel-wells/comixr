@@ -194,8 +194,11 @@ chr6.input <- bulkDP[chr==6 & segment.no %in% c(1:31),.(vals=total,seg=as.charac
 chr6.output <- fit.model(chr6.input,rho=0.5,initial.parameters.realistic)
 plot(chr6.output$likelihood[2:length(chr6.output$likelihood)])
 chr6.input$comp <- "A"
-plot.components(chr6.input[seg==16],parse.output.parameters(chr6.output)[segment=="16"])
-
+plot.components(chr6.input[seg==23],chr6.output,segment.subset = "23")
+plot.components(chr6.input[seg==22],chr6.output,segment.subset = "22")
+plot.components(chr6.input[seg==15],chr6.output,segment.subset = "15")
+plot.components(chr6.input[seg==31],chr6.output,segment.subset = "31")
+plot.components(chr6.input[seg==5],chr6.output,segment.subset = "5")
 
 ######
 
@@ -239,6 +242,7 @@ grid.arrange(grobs=list(plot.histogram.stat(0,18568208,"Normal"),
                         plot.histogram.stat(47653485,57239589,"Amplified")),
              layout_matrix=rbind(c(1,2),c(3,4)))
 
+# QQ Plots
 #install.packages("car")
 library(car)
 qqp(bulkDP[chr==6 & pos>lower.bound & pos<upper.bound]$total, "nbinom",size=2.67,mu=16.2)
