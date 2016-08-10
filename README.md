@@ -13,6 +13,6 @@ Functions to fit the models and plot resulting components are in the files in th
 
 [mclust-mixture-model.R](mclust-mixture-model.R) fits GGMs to individual segments as well as the whole genome, which gives initialisation values for the changepoint.R analysis.
 
-[vignettes/](vignettes/) contains examples of how to use the GMM-EM functions ([vignette.Rmd](vignette.Rmd)) as well as a full mathematical description of the model and the update equations ([GMM-EM.Rmd](GMM-EM.Rmd)).
+[vignettes/](vignettes/) contains examples of how to use the GMM-EM functions ([vignette.Rmd](vignettes/vignette.Rmd)) as well as a full mathematical description of the model and the update equations ([GMM-EM.Rmd](vignettes/GMM-EM.Rmd)).
 
 [unused.segmentations.R](unused.segmentations.R) has alternative changepoint package analyses to changepoint.R
