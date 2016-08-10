@@ -9,7 +9,7 @@ The aim of the project is to develop a visalisation of somatic copy number abber
 
 Functions to fit the models and plot resulting components are in the files in the [R/](R/) directory.
 
-[changepoint.R](changepoint.R)is the main analysis script, it loads the data, calculates changepoints, and then fits the model.
+[changepoint.R](changepoint.R) is the main analysis script, it loads the data, calculates changepoints, and then fits the model.
 
 [GMM-EM.pdf](GMM-EM.pdf)/[tex](GMM-EM.tex) describe the mathematical model of the shared component gaussian mixtures and the expectation maximisation updates.
 
