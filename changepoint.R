@@ -207,6 +207,13 @@ grid.arrange(grobs=list(plot.rho(bulkDP[chr==6],parse.output.parameters(chr6.out
                         plot.breakpoints(bulkStandard[chr==6],BPs.bulkStandard,"BinSeg - standard",Mode(bulkStandard[chr==6]$total))),
              layout_matrix=rbind(c(1),c(2),c(3)))
 
+# save breakpoints and model parameters in human + machine readable files
+sink("output-human.txt")
+chr6.output$breakpoints <- BPs.bulkDP
+print(chr6.output)
+sink()
+saveRDS(chr6.output,"output.rds")
+
 #### Check distribution of per segment read count
 
 # fit segments to negative binomial distributions
