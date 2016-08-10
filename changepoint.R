@@ -157,6 +157,7 @@ segments.bulkDP <- data.frame(start=c(1,BPs.bulkDP),end=c(BPs.bulkDP-1,max(bulkD
 segments.bulkStandard <- data.frame(start=c(1,BPs.bulkStandard),end=c(BPs.bulkStandard-1,max(bulkDP[chr==6]$pos)))
 
 # annotate SNPs with segment number
+bulkDP$segment.no <- NULL
 for (i in 1:nrow(segments.bulkDP)){
   bulkDP[chr==6 & pos>segments.bulkDP[i,]$start & pos<segments.bulkDP[i,]$end,segment.no:=i]
 }
