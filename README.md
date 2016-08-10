@@ -11,10 +11,8 @@ Functions to fit the models and plot resulting components are in the files in th
 
 [changepoint.R](changepoint.R) is the main analysis script, it loads the data, calculates changepoints, and then fits the model.
 
-[GMM-EM.pdf](GMM-EM.pdf)/[tex](GMM-EM.tex) describe the mathematical model of the shared component gaussian mixtures and the expectation maximisation updates.
-
 [mclust-mixture-model.R](mclust-mixture-model.R) fits GGMs to individual segments as well as the whole genome, which gives initialisation values for the changepoint.R analysis.
 
-In [vignettes/](vignettes/) there are simple examples of how to use the GMM-EM functions.
+[vignettes/](vignettes/) contains examples of how to use the GMM-EM functions ([vignette.Rmd](vignette.Rmd)) as well as a full mathematical description of the model and the update equations ([GMM-EM.Rmd](GMM-EM.Rmd)).
 
 [unused.segmentations.R](unused.segmentations.R) has alternative changepoint package analyses to changepoint.R

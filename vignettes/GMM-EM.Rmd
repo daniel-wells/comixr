@@ -1,24 +1,19 @@
-\documentclass[11pt,a4paper]{article}
-\usepackage[utf8]{inputenc}
-\usepackage{amsmath}
-\usepackage{amsfonts}
-\usepackage{amssymb}
-\usepackage{graphicx}
-\usepackage{lmodern}
-\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+---
+title: "Shared Component Gaussian Mixture Model - Mathematical Description"
+author: "Daniel Wells and Christopher Yau"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Shared Component Gaussian Mixture Model - Mathematical Description}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
 
-\author{Daniel Wells and Christopher Yau}
-\title{Robust }
+# The Model
 
-\begin{document}
-
-	\maketitle
-	
-\section{Model}	
-	
 Let $\{ y_i \}_{i=1}^n$ denote the coverage at position $i$ for $n$ loci across the chromosome/genome.
 
-\noindent Let $\{ s_i \}_{i=1}^n$ denote the segment number for each of those locations where $s_i \in \{ 1, \dots, S \}$ and $S$ is the total number of segments.
+Let $\{ s_i \}_{i=1}^n$ denote the segment number for each of those locations where $s_i \in \{ 1, \dots, S \}$ and $S$ is the total number of segments.
 
 \begin{align}
 	p(y_i | s_i = j, w, \mu, \sigma^2 ) = 
@@ -27,11 +22,11 @@ Let $\{ y_i \}_{i=1}^n$ denote the coverage at position $i$ for $n$ loci across 
 \end{align}
 where $f$ is the density function for the Normal distribution, $\sum_{k=1}^K w_{j,k} = 1$ and $\sum_{c=1}^{C} w_{0,c} = 1$.
 
-\section{EM Updates}
+# EM Updates
 
-\subsection{E updates}
+## E updates
 
-\noindent For each data point $y_i$, $\psi_{i}$ gives the probability it is in a common (rather than segment specific) component.
+For each data point $y_i$, $\psi_{i}$ gives the probability it is in a common (rather than segment specific) component.
 
 \begin{align}
 	\psi_{i} = \frac{ (1-\rho_{j}) \sum_{c=1}^{C} w_{0,c} f( y_i; \mu_{0,c}, \sigma_{0,c}^2 ) }
@@ -40,7 +35,7 @@ where $f$ is the density function for the Normal distribution, $\sum_{k=1}^K w_{
 \end{align}
 
 
-\noindent For each data point $y_i$, $\phi_{i,c}$ gives the probability it is in component $c$ given it's in a common component. $\nu_{i,k}$ gives the equivalent for segment specific components.
+For each data point $y_i$, $\phi_{i,c}$ gives the probability it is in component $c$ given it's in a common component. $\nu_{i,k}$ gives the equivalent for segment specific components.
 
 $$
 	\phi_{i,c} = \frac{ w_{0,c} f(y_i;\mu_{0, c}, \sigma_{0,c}^2 ) }
@@ -53,15 +48,15 @@ $$
 					{ \sum_{k=1}^{K} w_{s_i,k} f(y_i;\mu_{s_i,k}, \sigma_{s_i,k}^2 ) }  
 $$
 
-\subsection{M updates}
+## M updates
 
-\noindent M update for $\rho$, a global common vs segment specific weighting:
+M update for $\rho$, a global common vs segment specific weighting:
 
 $$
 	\rho_{j} = 1 - \frac{ \sum_{i : s_i = j}^n \psi_i }{ n }
 $$
 
-\noindent M updates for common component parameters:
+M updates for common component parameters:
 
 $$
 	w_{0,c} = \frac{ \sum_{i=1}^n \psi_i \phi_{i,c} }
@@ -78,7 +73,7 @@ $$
     					{ \sum_{i=1}^n \psi_i \phi_{i,c} }
 $$
 
-\noindent M updates for segment specific component parameters:
+M updates for segment specific component parameters:
 
 $$
 	w_{j,k} = \frac{ \sum_{i : s_i = j } (1-\psi_i) \nu_{i,k} }
@@ -95,7 +90,3 @@ $$
     					{ \sum_{i : s_i = j} (1-\psi_i) \nu_{i,k} }
 $$
 
-
-
-
-\end{document}
