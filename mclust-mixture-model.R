@@ -53,3 +53,6 @@ plot.gmm(bulkDP,64622787,133557441,"Normal CN, (bulk digiPico)")
 plot.gmm(bulkDP,165193244,1165193244,"Deleted reigon, (bulk digiPico)")
 
 plot.gmm(bulkDP,47653485,57239589,"Amplified reigon, (bulk digiPico)")
+
+# fit GMM to data as a whole
+normal.model2 <- Mclust(bulkDP$total)
