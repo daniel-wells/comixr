@@ -110,7 +110,7 @@ grid.arrange(grobs=list(plot.genomic.loadings(bulkStandard,"Bulk tumour, Standar
 # install.packages("changepoint")
 library("changepoint")
 
-cptST <- cpt.meanvar(bulkStandard[chr==6]$total,test.stat="Normal",method="BinSeg",Q=20,minseglen=1500)
+cptST <- cpt.meanvar(bulkStandard[chr==6]$total,test.stat="Normal",method="BinSeg",Q=30,minseglen=3000)
 cptDP <- cpt.meanvar(bulkDP[chr==6]$total,test.stat="Poisson",method="BinSeg",Q=30,minseglen=3000)
 
 # PELT versions
@@ -202,16 +202,11 @@ plot.components(chr6.input[seg==5],chr6.output,segment.subset = "5")
 
 ######
 
-
-# compare segment modes of normal vs digipico sequencing
-grid.arrange(grobs=list(plot.breakpoints(bulkStandard[chr==6],BPs.bulkStandard,"BinSeg - standard",Mode(bulkStandard[chr==6]$total)),
-                        plot.breakpoints(bulkDP[chr==6],BPs.bulkDP,"BinSeg - DP",Mode(bulkDP[chr==6]$total))),
-             layout_matrix=rbind(c(1),c(2)))
-
-# compare rho to mode per segment
+# compare rho to mode per segment and segment modes of normal vs digipico sequencing
 grid.arrange(grobs=list(plot.rho(bulkDP[chr==6],parse.output.parameters(chr6.output)),
-                        plot.breakpoints(bulkDP[chr==6],BPs.bulkDP,"BinSeg - DP",Mode(bulkDP[chr==6]$total))),
-             layout_matrix=rbind(c(1),c(2)))
+                        plot.breakpoints(bulkDP[chr==6],BPs.bulkDP,"BinSeg - DP",Mode(bulkDP[chr==6]$total)),
+                        plot.breakpoints(bulkStandard[chr==6],BPs.bulkStandard,"BinSeg - standard",Mode(bulkStandard[chr==6]$total))),
+             layout_matrix=rbind(c(1),c(2),c(3)))
 
 #### Check distribution of per segment read count
 
