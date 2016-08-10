@@ -181,10 +181,10 @@ bulkStandard[chr==6 & is.na(segment.mode)]
 
 #####
 
-# common mu's from mclust on whole genome (+2 at start)
+# common mu's from mclust on whole genome (+0.66 &1.33 at start)
 initial.parameters.realistic <- data.table(
   w=c(0.5),
-  mu=c(2,2.61,4.81,7.72,10.44,13.00,17.17,23.84,38.32,50,60,70,300,1),
+  mu=c(2,2.61,4.81,7.72,10.44,13.00,17.17,23.84,38.32,50,60,70,300,0.66,1.33),
   sigma2=c(8^2),
   component.type=c(rep("common",9),rep("specific",5)))
 
@@ -194,11 +194,10 @@ chr6.input <- bulkDP[chr==6 & segment.no %in% c(1:31),.(vals=total,seg=as.charac
 chr6.output <- fit.model(chr6.input,rho=0.5,initial.parameters.realistic)
 plot(chr6.output$likelihood[2:length(chr6.output$likelihood)])
 chr6.input$comp <- "A"
-plot.components(chr6.input[seg==23],chr6.output,segment.subset = "23")
-plot.components(chr6.input[seg==22],chr6.output,segment.subset = "22")
-plot.components(chr6.input[seg==15],chr6.output,segment.subset = "15")
-plot.components(chr6.input[seg==31],chr6.output,segment.subset = "31")
-plot.components(chr6.input[seg==5],chr6.output,segment.subset = "5")
+
+grid.arrange(grobs=list(plot.components(chr6.input[seg %in% c(5,15,22,31)],chr6.output,segment.subset = c("5","15","22","31")),
+                        plot.components(chr6.input[seg %in% c(5,15,22,31)],chr6.output,segment.subset = c("5","15","22","31"),type="density")),
+             layout_matrix=rbind(c(1),c(2)))
 
 ######
 

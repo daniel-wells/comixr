@@ -36,13 +36,15 @@ parse.output.parameters <- function(output,segment.subset=NULL){
 #' @param vals.df original data, identical to fit.model() input
 #' @param output.parameters, list of parameters, output of fit.model()
 #' @param segment.subset, optional, list of segment names to plot, default uses all segments
+#' @param type, optional, if value is "density", a density plot comparing orignal vs model distribution. 
+#' If left empty the modeled components are plotted (with common and specific in different colours)
 #'
 #' @examples
 #' plot.components(input.data,output.data,segment.subset="segment16")
 #' @export
 #' @import ggplot2
 
-plot.components <- function(vals.df,output.parameters,segment.subset=NULL){
+plot.components <- function(vals.df,output.parameters,segment.subset=NULL,type=NULL){
   output.parameters <- parse.output.parameters(output.parameters,segment.subset)
   
   if(!is.null(segment.subset)){
@@ -71,19 +73,25 @@ plot.components <- function(vals.df,output.parameters,segment.subset=NULL){
   #   ggtitle(paste("iteration:",iter.count)) +
   #   scale_colour_manual(values = c("blue","red","black")) +
   #   facet_wrap(~seg,nrow = 2)
-
-  ggplot(temp, aes(vals, colour=component.type)) +
+  
+  if (is.null(type)){
+  ggplot(temp[source=="Inferred"], aes(vals, colour=component.type)) +
     geom_freqpoly(binwidth=0.1) +
     ggtitle(paste("iteration:",unique(output.parameters$iteration))) +
     scale_colour_manual(values = c("blue","red","black")) +
-    facet_grid(source~seg,scales="free_y")
+    theme(legend.position = "bottom") +
+    facet_wrap(~seg,scales="free",nrow=1) # source~seg for original data underneath
 
-  
-  # ggplot(temp, aes(vals, colour=component.type)) +
-  #   geom_density() +
-  #   ggtitle(paste("iteration:",iter.count)) +
-  #   scale_colour_manual(values = c("blue","red","black")) +
-  #   facet_wrap(~seg,nrow = 2)
+  } else if (type=="density"){
+  ggplot(temp, aes(vals, colour=source)) +
+    geom_density() +
+    scale_colour_manual(values = c("red","black")) +
+    ggtitle(paste("iteration:",unique(output.parameters$iteration))) +
+    theme(legend.position = "bottom") +
+    facet_wrap(~seg,scales="free",nrow=1)
+    # to plot all components individually
+    # geom_density(data=temp[source=="Inferred"],aes(vals,group=comp)) +
+  }
 }
 
 #' Fit shared component gaussian mixed model.
