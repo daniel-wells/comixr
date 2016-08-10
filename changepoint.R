@@ -121,7 +121,7 @@ cptDP <- cpt.meanvar(bulkDP[chr==6]$total,test.stat="Poisson",method="BinSeg",Q=
 
 # main plotting function
 plot.breakpoints <- function(data,breakpoints,title="",average){
- P <- ggplot(data[chr==6], aes(pos,total))+
+ P <- ggplot(data, aes(pos,total))+
     ylim(0,100) +
     geom_point(size=0.5,alpha=0.05) +
     ggtitle(title) +
@@ -204,13 +204,13 @@ plot.components(chr6.input[seg==5],chr6.output,segment.subset = "5")
 
 
 # compare segment modes of normal vs digipico sequencing
-grid.arrange(grobs=list(plot.breakpoints(bulkStandard,BPs.bulkStandard,"BinSeg - standard",Mode(bulkStandard[chr==6]$total)),
-                        plot.breakpoints(bulkDP,BPs.bulkDP,"BinSeg - DP",Mode(bulkDP[chr==6]$total))),
+grid.arrange(grobs=list(plot.breakpoints(bulkStandard[chr==6],BPs.bulkStandard,"BinSeg - standard",Mode(bulkStandard[chr==6]$total)),
+                        plot.breakpoints(bulkDP[chr==6],BPs.bulkDP,"BinSeg - DP",Mode(bulkDP[chr==6]$total))),
              layout_matrix=rbind(c(1),c(2)))
 
 # compare rho to mode per segment
-grid.arrange(grobs=list(plot.rho(bulkDP[chr==6],parse.output.parameters(chr6.output,segment.subset = NULL)),
-                        plot.breakpoints(bulkDP,BPs.bulkDP,"BinSeg - DP",Mode(bulkDP[chr==6]$total))),
+grid.arrange(grobs=list(plot.rho(bulkDP[chr==6],parse.output.parameters(chr6.output)),
+                        plot.breakpoints(bulkDP[chr==6],BPs.bulkDP,"BinSeg - DP",Mode(bulkDP[chr==6]$total))),
              layout_matrix=rbind(c(1),c(2)))
 
 #### Check distribution of per segment read count
