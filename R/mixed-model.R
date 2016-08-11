@@ -91,6 +91,20 @@ plot.components <- function(vals.df,output.parameters,segment.subset=NULL,type=N
     facet_wrap(~seg,scales="free",nrow=1)
     # to plot all components individually
     # geom_density(data=temp[source=="Inferred"],aes(vals,group=comp)) +
+  }else if (type=="QQ"){
+    
+    qq <- data.frame(x=numeric(),y=numeric(),segment=character())
+    for (segment in segment.subset){
+      d <- as.data.frame(qqplot(temp[seg==segment & source=="Inferred"]$vals,temp[seg==segment & source=="Original Data"]$vals, plot.it=FALSE))
+      d$segment <- segment
+      qq <- rbind(qq,d)
+    }
+    qq$segment <- as.factor(as.numeric(qq$segment))
+    
+    ggplot(qq,aes(x, y)) +
+      geom_point(size=0.5) +
+      geom_abline(intercept=0,slope=1,colour='red') +
+      facet_wrap(~segment,scales="free",nrow=1)
   }
 }
 

@@ -196,8 +196,9 @@ plot(chr6.output$likelihood[2:length(chr6.output$likelihood)])
 chr6.input$comp <- "A"
 
 grid.arrange(grobs=list(plot.components(chr6.input[seg %in% c(5,15,22,31)],chr6.output,segment.subset = c("5","15","22","31")),
-                        plot.components(chr6.input[seg %in% c(5,15,22,31)],chr6.output,segment.subset = c("5","15","22","31"),type="density")),
-             layout_matrix=rbind(c(1),c(2)))
+                        plot.components(chr6.input[seg %in% c(5,15,22,31)],chr6.output,segment.subset = c("5","15","22","31"),type="density"),
+                        plot.components(chr6.input[seg %in% c(5,15,22,31)],chr6.output,segment.subset = c("5","15","22","31"),type="QQ")),
+             layout_matrix=rbind(c(1),c(2),c(3)))
 
 ######
 
