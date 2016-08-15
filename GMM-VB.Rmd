@@ -1,0 +1,127 @@
+---
+title: "VBGMM"
+author: "Daniel Wells"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{VBGMM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# The Model
+
+Let $\{ y_i \}_{i=1}^n$ denote the coverage at position $i$ for $n$ loci across the chromosome/genome.
+
+Let $\{ s_i \}_{i=1}^n$ denote the segment number for each of those locations where $s_i \in \{ 1, \dots, S \}$ and $S$ is the total number of segments.
+
+\begin{align}
+	p(y_i | s_i = j, w, \mu, \sigma^2 ) = 
+    (1-\rho_{j}) \underbrace{\sum_{c=1}^{C} w_{0,c} f( y_i; \mu_{0,c}, \sigma_{0,c}^2 )}_{\text{Common}} + 
+    \rho_{j} \underbrace{ \sum_{k=1}^{K} w_{j,k} f( y_i; \mu_{j,k}, \sigma_{j,k}^2 ) }_{\text{Segment-specific}}
+\end{align}
+where $f$ is the density function for the Normal distribution, $\sum_{k=1}^K w_{j,k} = 1$ and $\sum_{c=1}^{C} w_{0,c} = 1$.
+
+These equations are based on [Variational Bayes for 1-dimensional Mixture Models (2000)](http://www.robots.ox.ac.uk/~sjrob/Pubs/vbmog.ps.gz) (gzip download) by W.D. Penny and S.J. Roberts which is itself a 1 dimensional case of the mixture model proposed in [A Variational Bayesian Framework for Graphical Models (2000)](http://www.gatsby.ucl.ac.uk/publications/papers/03-2000.ps) by Hagai Attias. 
+
+## Priors
+\begin{align}
+P(w) = \mathcal{Dir}(w|\lambda) \\
+P(\beta) = \Gamma(\beta|b_0,c_0) \\
+P(\mu) = \mathcal{N}(\mu|m_0,\nu_0) \\
+\end{align}
+
+# Updates
+## E Step
+Compute the probability component s is responsible for data point y
+
+$$
+	\tilde{\gamma}_{i,k}= \tilde{w}_k \tilde{\beta}_k^{1/2} exp[ - \frac{1}{2} \bar{\beta}_k (y_i^2 + m_k^2 + \nu_k -2 m_k y_i) ]
+$$
+
+
+$$
+  log(\tilde{w}_k) = \Psi(\lambda_k) - \Psi(\sum_{k=1}^K\lambda_{k})
+$$
+
+$$
+  log(\tilde{\beta}_k) = \Psi(c_k) - log(b_k)
+$$
+
+$$
+  \bar{\beta}_k = c_k b_k
+$$
+
+Normalise by sum of all components
+$$
+	\gamma_{i,k} = \frac{\tilde{\gamma}_{i,k}}{\sum_{k=1}^K\tilde{\gamma}_{i,k}}
+$$
+
+## M Step
+
+Proportion of data in component k
+$$
+  \tilde{w}_k = \frac{1}{N} \sum_{i=1}^{N} \gamma_{i,k}
+$$
+
+number of data points in component k
+$$
+  \bar{N}_k = N \tilde{w}_k
+$$
+
+Data values weighted by probability of each component
+$$
+  \bar{y}_k = \frac{1}{N} \sum_{i=1}^{N} \gamma_{i,k} y_n
+$$
+
+$$
+  \tilde{y}_k^2 = \frac{1}{N} \sum_{i=1}^{N} \gamma_{i,k} y^2_n
+$$
+
+
+Mixing weight hyperparameter update
+$$
+  \lambda_k = \bar{N}_k + \lambda_0
+$$
+
+Variance of component k
+$$
+  \tilde{\sigma}_k^2 = \tilde{y}_k^2 + \bar{w}_k ( m_k^2 + \nu_k ) - 2 m_k \bar{y}_k
+$$
+
+Precision hyperparameter updates
+$$
+  \frac{1}{b_k} = \frac{N}{2} \tilde{\sigma}_k^2 + \frac{1}{b_0}
+$$
+
+$$
+  c_k = \frac{N_k}{2} + c_0
+$$
+
+Mean hyperparameter updates
+$$
+  m_{data}(k) = y_k/w_k
+$$
+
+$$
+  t_{data}(k) = \bar{N}_k \bar{\beta}_k
+$$
+
+$$
+  \tau = \frac{1}{\nu}
+$$
+
+$$
+  \tau_k = \tau_0 + \tau_{data}(k)
+$$
+
+$$
+  m_k = \frac{\tau_0}{\tau_k} m_0 + \frac{\tau_{data}(k)}{\tau_k} m_{data}(k)
+$$
+
+
+
+
+
+
+
