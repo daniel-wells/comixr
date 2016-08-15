@@ -77,7 +77,7 @@ plot.components <- function(vals.df,output.parameters,segment.subset=NULL,type=N
   
   if (is.null(type)){
   ggplot(temp[source=="Inferred"], aes(vals, colour=component.type)) +
-    geom_freqpoly(binwidth=0.1) +
+    geom_freqpoly(binwidth=1) +
     ggtitle(paste("iteration:",unique(output.parameters$iteration))) +
     scale_colour_manual(values = c("blue","red","black")) +
     theme(legend.position = "bottom") +
