@@ -36,7 +36,8 @@ parse.output.parameters <- function(output,segment.subset=NULL){
 #' @param vals.df original data, identical to fit.model() input
 #' @param output.parameters, list of parameters, output of fit.model()
 #' @param segment.subset, optional, list of segment names to plot, default uses all segments
-#' @param type, optional, if value is "density", a density plot comparing orignal vs model distribution. 
+#' @param type, optional, if value is "density", a density plot comparing orignal vs model distribution.
+#' If value is "QQ", a quantile-quantile plot is output.
 #' If left empty the modeled components are plotted (with common and specific in different colours)
 #'
 #' @examples
