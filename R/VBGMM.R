@@ -36,9 +36,10 @@ c_0 <- 0.001
 
 ##### E step
 pi = exp( digamma(lambda) - digamma(sum(lambda)) )
-beta = b*c
+beta_tilde = exp(digamma(c) + log(b))
+beta_barar = b*c
 
-gamma <- matrix(pi*beta^0.5,nrow=length(y),ncol=n.comp) * exp(-0.5 * matrix(beta,nrow=length(y),ncol=n.comp) * ( outer(y^2, as.vector(m^2 + nu), FUN="+") - 2*y%*%m ) )
+gamma <- matrix(pi*beta_tilde^0.5,nrow=length(y),ncol=n.comp) * exp(-0.5 * matrix(beta_bar,nrow=length(y),ncol=n.comp) * ( outer(y^2, as.vector(m^2 + nu), FUN="+") - 2*y%*%m ) )
 gamma <- gamma/rowSums(gamma)
 
 #### M Step
@@ -64,7 +65,7 @@ c <- N_s/2 + c_0
 
 m_data <- y_w/pi
 
-tau_data <- N_s*beta
+tau_data <- N_s*beta_bar
 
 tau <- 1/nu_0 + tau_data
 
@@ -73,8 +74,8 @@ nu <- 1/tau
 m <- nu_0/tau * m_0 + tau_data/tau * m_data
 
 n <- length(y)
-y_infered <- c(rnorm(as.integer(n*pi[1]), mean = m[1], sd = 1/beta[1]),
-              rnorm(as.integer(n*pi[2]), mean = m[2], sd = 1/beta[2]))
+y_infered <- c(rnorm(as.integer(n*pi[1]), mean = m[1], sd = 1/beta_tilde[1]),
+              rnorm(as.integer(n*pi[2]), mean = m[2], sd = 1/beta_tilde[2]))
 
 toplot <- rbind(data.frame(y=y,source="original"),data.frame(y=y_infered,source="Infered"))
 ggplot(toplot,aes(y,colour=source))+ geom_freqpoly(bins=50)
