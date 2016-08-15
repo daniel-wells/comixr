@@ -1,4 +1,5 @@
 raw-data/*.tsv
+temp/*
 
 # History files
 .Rhistory
