@@ -17,8 +17,8 @@ Let $\{ s_i \}_{i=1}^n$ denote the segment number for each of those locations wh
 
 \begin{align}
 	p(y_i | s_i = j, w, \mu, \sigma^2 ) = 
-    (1-\rho_{j}) \underbrace{\sum_{c=1}^{C} w_{0,c} f( y_i; \mu_{0,c}, \sigma_{0,c}^2 )}_{\text{Common}} + 
-    \rho_{j} \underbrace{ \sum_{k=1}^{K} w_{j,k} f( y_i; \mu_{j,k}, \sigma_{j,k}^2 ) }_{\text{Segment-specific}}
+    (1-\rho_{j}) \underbrace{\sum_{c=1}^{C} w_{0,c} f( y_i; \mu_{0,c}, \beta_{0,c} )}_{\text{Common}} + 
+    \rho_{j} \underbrace{ \sum_{k=1}^{K} w_{j,k} f( y_i; \mu_{j,k}, \beta_{j,k} ) }_{\text{Segment-specific}}
 \end{align}
 where $f$ is the density function for the Normal distribution, $\sum_{k=1}^K w_{j,k} = 1$ and $\sum_{c=1}^{C} w_{0,c} = 1$.
 
@@ -27,29 +27,30 @@ These equations are based on [Variational Bayes for 1-dimensional Mixture Models
 ## Priors
 \begin{align}
 P(w) = \mathcal{Dir}(w|\lambda) \\
+P(\rho) = \mathcal{Dir}(\rho|\kappa) \\
 P(\beta) = \Gamma(\beta|b_0,c_0) \\
 P(\mu) = \mathcal{N}(\mu|m_0,\nu_0) \\
 \end{align}
 
 # Updates
 ## E Step
-Compute the probability component s is responsible for data point y
+Compute the probability segment specific component k is responsible for data point y
 
 $$
-	\tilde{\gamma}_{i,k}= \tilde{w}_k \tilde{\beta}_k^{1/2} exp[ - \frac{1}{2} \bar{\beta}_k (y_i^2 + m_k^2 + \nu_k -2 m_k y_i) ]
+	\tilde{\gamma}_{i,k}= \tilde{w}_{j,k} \tilde{\beta}_{j,k}^{1/2} exp[ - \frac{1}{2} \bar{\beta}_{j,k} (y_i^2 + m_{j,k}^2 + \nu_{j,k} -2 m_{j,k} y_i) ]
 $$
 
 
 $$
-  log(\tilde{w}_k) = \Psi(\lambda_k) - \Psi(\sum_{k=1}^K\lambda_{k})
-$$
-
-$$
-  log(\tilde{\beta}_k) = \Psi(c_k) - log(b_k)
+  log(\tilde{w}_{j,k}) = \Psi(\lambda_{j,k}) - \Psi(\sum_{k=1}^K\lambda_{j,k})
 $$
 
 $$
-  \bar{\beta}_k = c_k b_k
+  log(\tilde{\beta}_{j,k}) = \Psi(c_{j,k}) - log(b_{j,k})
+$$
+
+$$
+  \bar{\beta}_{j,k} = c_{j,k} b_{j,k}
 $$
 
 Normalise by sum of all components
@@ -57,54 +58,132 @@ $$
 	\gamma_{i,k} = \frac{\tilde{\gamma}_{i,k}}{\sum_{k=1}^K\tilde{\gamma}_{i,k}}
 $$
 
+######
+
+Compute the probability component c common to all segments is responsible for data point y
+
+$$
+	\tilde{\phi}_{i,c}= \tilde{w}_{0,c} \tilde{\beta}_{0,c}^{1/2} exp[ - \frac{1}{2} \bar{\beta}_{0,c} (y_i^2 + m_{0,c}^2 + \nu_{0,c} -2 m_{0,c} y_i) ]
+$$
+
+
+$$
+  log(\tilde{w}_{0,c}) = \Psi(\lambda_{0,c}) - \Psi(\sum_{k=1}^K\lambda_{0,c})
+$$
+
+$$
+  log(\tilde{\beta}_{0,c}) = \Psi(c_{0,c}) - log(b_{0,c})
+$$
+
+$$
+  \bar{\beta}_{0,c} = c_{0,c} b_{0,c}
+$$
+
+Normalise by sum of all components
+$$
+	\phi_{i,c} = \frac{\tilde{\phi}_{i,c}}{\sum_{c=1}^C\tilde{\phi}_{i,c}}
+$$
+
+######
+
+Compute probability data point is in common rather than segment sepecific component
+
+$$
+  \psi_i = \frac{(1-\rho_j) \sum_{c=1}^C\tilde{\phi}_{0,c}}{(1-\rho_j) \sum_{c=1}^C\tilde{\phi}_{0,c} + \rho_j \sum_{k=1}^K\tilde{\gamma}_{i,k}}
+$$
+
+$$
+  log(\rho_j) = \Psi(\kappa_j) - \Psi(\sum_{j=1}^J\kappa_j)
+$$
+
 ## M Step
 
-Proportion of data in component k
+Proportion of data in component c|common or k|specific for each segment
 $$
-  \tilde{w}_k = \frac{1}{N} \sum_{i=1}^{N} \gamma_{i,k}
+  \bar{w}_{j,k} = \frac{\sum_{i:s_i=j} (1-\psi_i) \gamma_{i,k}}{\sum_{i:s_i=j} (1-\psi_i)} 
 $$
 
-number of data points in component k
 $$
-  \bar{N}_k = N \tilde{w}_k
+  \bar{w}_{0,c} = \frac{\sum_{i=1}^n \psi_i \phi_{i,c}}{\sum_{i=1}^n \psi_i} 
+$$
+
+number of data points in component c / k for each segment
+$$
+  \bar{N}_{j,k} = \bar{w}_{j,k} \sum_{i:s_i=j} (1-\psi_i)
+$$
+
+$$
+  \bar{N}_{0,c} = \bar{w}_{0,c} \sum_{i=1}^n \psi_i
 $$
 
 Data values weighted by probability of each component
 $$
-  \bar{y}_k = \frac{1}{N} \sum_{i=1}^{N} \gamma_{i,k} y_n
+  \bar{y}_{j,k} = \frac{\sum_{i:s_i=j} (1-\psi_i) \gamma_{i,k} y_n}{\sum_{i:s_i=j} (1-\psi_i)}
 $$
 
 $$
-  \tilde{y}_k^2 = \frac{1}{N} \sum_{i=1}^{N} \gamma_{i,k} y^2_n
+  \tilde{y}_{j,k}^2 = \frac{\sum_{i:s_i=j} (1-\psi_i) \gamma_{i,k} y^2_n}{\sum_{i:s_i=j} (1-\psi_i)}
 $$
 
+$$
+  \bar{y}_{0,c} = \frac{\sum_{i=1}^n \psi_i \phi_{0,c} y_n}{\sum_{i=1}^n \psi_i}
+$$
+
+$$
+  \tilde{y}_{0,c}^2 = \frac{\sum_{i=1}^n \psi_i \phi_{0,c} y^2_n}{\sum_{i=1}^n \psi_i}
+$$
 
 Mixing weight hyperparameter update
 $$
-  \lambda_k = \bar{N}_k + \lambda_0
+  \lambda_{j,k} = \bar{N}_{j,k} + \lambda_0
 $$
 
-Variance of component k
 $$
-  \tilde{\sigma}_k^2 = \tilde{y}_k^2 + \bar{w}_k ( m_k^2 + \nu_k ) - 2 m_k \bar{y}_k
+  \lambda_{0,c} = \bar{N}_{0,c} + \lambda_0
+$$
+
+Variance of component c / k for each segment
+$$
+  \tilde{\sigma}_{j,k}^2 = \tilde{y}_{j,k}^2 + \bar{w}_{j,k}( m_{j,k}^2 + \nu_{j,k} ) - 2 m_{j,k} \bar{y}_{j,k}
+$$
+
+$$
+  \tilde{\sigma}_{0,c}^2 = \tilde{y}_{0,c}^2 + \bar{w}_{0,c}( m_{0,c}^2 + \nu_{0,c} ) - 2 m_{0,c} \bar{y}_{0,c}
 $$
 
 Precision hyperparameter updates
 $$
-  \frac{1}{b_k} = \frac{N}{2} \tilde{\sigma}_k^2 + \frac{1}{b_0}
+  \frac{1}{b_{j,k}} = \frac{\tilde{\sigma}_{j,k}^2}{2} (\sum_{i:s_i=j} (1-\psi_i)) + \frac{1}{b_0}
 $$
 
 $$
-  c_k = \frac{N_k}{2} + c_0
+  \frac{1}{b_{0,c}} = \frac{\tilde{\sigma}_{0,c}^2}{2} (\sum_{i=1}^n \psi_i) + \frac{1}{b_0}
 $$
+
+$$
+  c_{j,k} = \frac{\bar{N}_{j,k}}{2} + c_0
+$$
+
+$$
+  c_{0,c} = \frac{\bar{N}_{0,c}}{2} + c_0
+$$
+
 
 Mean hyperparameter updates
 $$
-  m_{data}(k) = y_k/w_k
+  m_{data}(j,k) = \bar{y}_{j,k}/\bar{w}_{j,k}
 $$
 
 $$
-  t_{data}(k) = \bar{N}_k \bar{\beta}_k
+  m_{data}(0,c) = \bar{y}_{0,c}/\bar{w}_{0,c}
+$$
+
+$$
+  t_{data}(j,k) = \bar{N}_{j,k} \bar{\beta}_{j,k}
+$$
+
+$$
+  t_{data}(0,c) = \bar{N}_{0,c} \bar{\beta}_{0,c}
 $$
 
 $$
@@ -112,16 +191,18 @@ $$
 $$
 
 $$
-  \tau_k = \tau_0 + \tau_{data}(k)
+  \tau_{j,k} = \tau_0 + \tau_{data}(j,k)
 $$
 
 $$
-  m_k = \frac{\tau_0}{\tau_k} m_0 + \frac{\tau_{data}(k)}{\tau_k} m_{data}(k)
+  \tau_{0,c} = \tau_0 + \tau_{data}(0,c)
 $$
 
+$$
+  m_{j,k} = \frac{\tau_0}{\tau_{j,k}} m_0 + \frac{\tau_{data}(j,k)}{\tau_{j,k}} m_{data}(j,k)
+$$
 
-
-
-
-
+$$
+  m_{0,c} = \frac{\tau_0}{\tau_{0,c}} m_0 + \frac{\tau_{data}(0,c)}{\tau_{0,c}} m_{data}(0,c)
+$$
 
