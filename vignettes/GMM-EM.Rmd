@@ -53,7 +53,7 @@ $$
 M update for $\rho$, a global common vs segment specific weighting:
 
 $$
-	\rho_{j} = 1 - \frac{ \sum_{i : s_i = j}^n \psi_i }{ n }
+	\rho_{j} = 1 - \frac{ \sum_{i : s_i = j} \psi_i }{ \sum_{i : s_i = j} 1 }
 $$
 
 M updates for common component parameters:
