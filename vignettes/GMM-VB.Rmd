@@ -107,6 +107,10 @@ $$
   \bar{w}_{0,c} = \frac{\sum_{i=1}^n \psi_i \phi_{i,c}}{\sum_{i=1}^n \psi_i} 
 $$
 
+$$
+  \rho_j = 1 - \frac{1}{n} \sum_{i=1}^n \psi_i
+$$
+
 number of data points in component c / k for each segment
 $$
   \bar{N}_{j,k} = \bar{w}_{j,k} \sum_{i:s_i=j} (1-\psi_i)
@@ -114,6 +118,10 @@ $$
 
 $$
   \bar{N}_{0,c} = \bar{w}_{0,c} \sum_{i=1}^n \psi_i
+$$
+
+$$
+  \bar{N}_{\rho_j} = \rho_j \sum_{i:s_i=j} 1
 $$
 
 Data values weighted by probability of each component
@@ -140,6 +148,10 @@ $$
 
 $$
   \lambda_{0,c} = \bar{N}_{0,c} + \lambda_0
+$$
+
+$$
+  \kappa_j = \bar{N}_{\rho_j} + \kappa_0
 $$
 
 Variance of component c / k for each segment
