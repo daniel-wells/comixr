@@ -108,7 +108,7 @@ $$
 $$
 
 $$
-  \rho_j = 1 - \frac{1}{n} \sum_{i=1}^n \psi_i
+  \rho_j = 1 - \frac{\sum_{i:s_i=j} \psi_i}{\sum_{i:s_i=j} 1}
 $$
 
 number of data points in component c / k for each segment
