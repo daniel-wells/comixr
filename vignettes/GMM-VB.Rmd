@@ -46,7 +46,7 @@ $$
 $$
 
 $$
-  log(\tilde{\beta}_{j,k}) = \Psi(c_{j,k}) - log(b_{j,k})
+  log(\tilde{\beta}_{j,k}) = \Psi(c_{j,k}) + log(b_{j,k})
 $$
 
 $$
@@ -68,11 +68,11 @@ $$
 
 
 $$
-  log(\tilde{w}_{0,c}) = \Psi(\lambda_{0,c}) - \Psi(\sum_{k=1}^K\lambda_{0,c})
+  log(\tilde{w}_{0,c}) = \Psi(\lambda_{0,c}) - \Psi(\sum_{c=1}^C\lambda_{0,c})
 $$
 
 $$
-  log(\tilde{\beta}_{0,c}) = \Psi(c_{0,c}) - log(b_{0,c})
+  log(\tilde{\beta}_{0,c}) = \Psi(c_{0,c}) + log(b_{0,c})
 $$
 
 $$
