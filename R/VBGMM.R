@@ -1,18 +1,57 @@
 
 input.parameters <- data.table(
   lambda=c(5),
-  m=c(5,1),
+  m=c(5,2),
   nu=c(2),
   b=c(4),
   c=c(0.125),
   component.type=c(rep("common",1),rep("specific",1)))
 
 #vals.df <- bulkDP[chr==6 & !is.na(segment.no),.(vals=total,seg=segment.no)]
-vals.df <- data.table(vals = c(rnorm(2500, mean = 6.1, sd = 0.75),rnorm(2000, mean = 0.5, sd = 0.3),rnorm(2500, mean = 5.9, sd = 0.75),rnorm(3000, mean = 2, sd = 0.3)), seg = c(rep(1,4500),rep(2,5500)))
+vals.df <- data.table(vals = c(rnorm(2500, mean = 6.1, sd = 0.75),
+                               rnorm(2000, mean = 1, sd = 0.3),
+                               rnorm(2500, mean = 5.9, sd = 0.75),
+                               rnorm(3000, mean = 2, sd = 0.3)), seg = c(rep(1,4500),rep(2,5500)))
 
 hist(vals.df[seg==1]$vals,breaks=300,xlim=c(-1,9))
 hist(vals.df[seg==2]$vals,breaks=300,xlim=c(-1,9))
 hist(vals.df$vals,breaks=300,xlim=c(-1,9))
+
+
+#' Fit shared component gaussian mixed model using Variational Bayes
+#'
+#' \code{fit.model.vb} returns parameters for gassians fitted to the data.
+#'
+#'
+#' @param read.count data.frame with two columns, first being numeric read.counts,
+#'  and second being charachter segment names. Column names can be whatever.
+#'
+#' @param rho.input Numeric value for initial value of rho parameter
+#' @param input.parameters
+#' @param init.max
+#' @param break.parameter Numeric value, when the difference in log likelihood 
+#' between two iterations is less than this value the iteration will stop
+#' @return A list of parameters
+#'
+#' @examples
+#' # see vignette
+#' @export
+#' @import data.table
+
+fit.model.vb <- function(vals.df,rho.input,input.parameters,init.max=40,break.parameter=50){
+  
+  ### INITIALISATION
+  
+  if (any(input.parameters$component.type=="common") & any(input.parameters$component.type=="specific")){
+  } else {
+    stop("At least one common and one specific component required")
+  }
+  
+  ## split input read count data frame into 2: 
+  # 1) a list of indexes specifying which read count is in which segment
+  # 2) a vector of read counts
+  stopifnot(ncol(vals.df)==2)
+  setnames(vals.df,names(vals.df),c("vals","seg"))
 
 ####################################
 ##### Parse Input Initialise  ######
@@ -37,7 +76,7 @@ n.segments <- length(segment.indicies)
 print(paste(length(segment.indicies),"segments"))
 
 # rho parameter for each segment
-rho <- rep(0.5,length(segment.indicies))
+rho <- rep(rho.input,length(segment.indicies))
 names(rho) <- segment.names
 
 t_data_specific <- m_data_specific <- sigma2_specific <- y2_weighted_specific <- y_weighted_specific <- N_specific <- matrix(nrow = n.segments, ncol = n.specific.components)
@@ -86,6 +125,12 @@ common_parameters$c <- com.param$c
 common_parameters$nu <- com.param$nu
 common_parameters$m <- com.param$m
 
+
+iter.count <- 0
+
+##### UPDATES
+for (round in 1:init.max){
+
 #########################
 ##### E step ############
 #########################
@@ -120,16 +165,12 @@ gamma_topsum[indexes, ] <- weighting[segment, ] * beta_tilde[segment, ]^0.5 *
 
 gamma[indexes, ] <- gamma_topsum[indexes, ]/rowSums(gamma_topsum[indexes, , drop=FALSE])
 
-#_weighting
-
 # calculate probaility for each data point in common or specific component
 psi_topsum <- (1-rho_weighting[segment]) * rowSums(common_topsum[indexes, , drop=FALSE])
 psi_bottomsum <- psi_topsum + (rho_weighting[segment] * rowSums(gamma_topsum[indexes, , drop=FALSE]))
 psi[indexes] <- psi_topsum / psi_bottomsum
 
 hist(phi[indexes],breaks=100)
-hist(gamma_topsum[indexes],breaks=100)
-hist(common_topsum[indexes],breaks=100)
 hist(gamma[indexes],breaks=100)
 hist(psi[indexes],breaks=100)
 }
@@ -207,10 +248,26 @@ common_parameters$nu <- 1/(1/priors$nu + t_data)
 
 common_parameters$m <- (1/priors$nu * priors$m) / (1/common_parameters$nu) + (t_data * m_data) / (1/common_parameters$nu)
 
+iter.count <- iter.count + 1
+print(paste("Iteration:",iter.count))
+
+if (iter.count>3){print("Done, saving parameter estimates")
+    break}
+
+} # EM updates repetition loop
+
+# parse output
+
+output <- list(common_parameters=common_parameters,specific_parameters=specific_parameters,rho=rho,kappa=kappa)
+
+return(output)
+
+}
 #########################
 ##### Done ##############
 #########################
 
+out <- fit.model.vb(vals.df,0.5,input.parameters)
 
 y_infered <- rbind(data.table(y=rnorm(ceiling(N_common[1])/n.segments, mean = common_parameters$m[1], sd = 1/(common_parameters$b * common_parameters$c)[1]),source="C1"),
                    data.table(y=rnorm(ceiling(N_specific[1,1]), mean = specific_parameters$m[1,1], sd = 1/(specific_parameters$b * specific_parameters$c)[1,1]),source="S1"))
