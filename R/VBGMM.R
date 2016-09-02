@@ -38,7 +38,7 @@ hist(vals.df$vals,breaks=300,xlim=c(-1,9))
 #' @export
 #' @import data.table
 
-fit.model.vb <- function(vals.df,rho.input,input.parameters,init.max=40,break.parameter=50){
+fit.model.vb <- function(data,rho.input,input.parameters,init.max=40,break.parameter=50){
   
   ### INITIALISATION
   
@@ -50,14 +50,14 @@ fit.model.vb <- function(vals.df,rho.input,input.parameters,init.max=40,break.pa
   ## split input read count data frame into 2: 
   # 1) a list of indexes specifying which read count is in which segment
   # 2) a vector of read counts
-  stopifnot(ncol(vals.df)==2)
-  setnames(vals.df,names(vals.df),c("vals","seg"))
+  stopifnot(ncol(data)==2)
+  setnames(data,names(data),c("vals","seg"))
 
 ####################################
 ##### Parse Input Initialise  ######
 ####################################
 
-read.count <- vals.df$vals
+read.count <- data$vals
 
 com.param <- input.parameters[component.type=="common"]
 com.param$component.type <- NULL
@@ -68,7 +68,7 @@ n.common.components <- nrow(input.parameters[component.type=="common"])
 print(paste(n.common.components,"common components"))
 
 # get index ranges of each segment
-segment.indicies <- vals.df[,.(index = list(.I)),by=seg]
+segment.indicies <- data[,.(index = list(.I)),by=seg]
 segment.names <- segment.indicies$seg
 segment.indicies <- segment.indicies$index
 names(segment.indicies) <- segment.names
