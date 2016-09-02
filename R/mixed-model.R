@@ -164,7 +164,19 @@ for (segment in 1:length(segment.names)){
 }
 
 # more raw output
-output <- list(w.specific=w.k.u,mu.specific=mu.k.u,sigma2.specific=sigma2.k.u,w.common=com.param$w,mu.common=com.param$mu,sigma2.common=com.param$sigma2,rho=unname(rho),iteration=iter.count,likelihood=likelihood.byiter,segment.names=segment.names)
+output <- list(
+	specific_parameters = list(
+		mix_weights = w.k.u,
+		mean = mu.k.u,
+		variance = sigma2.k.u),
+	common_parameters = data.table(
+		mix_weights = com.param$w,
+		mean = com.param$mu,
+		variance = com.param$sigma2),
+	rho = unname(rho),
+	iteration = iter.count,
+	likelihood = likelihood.byiter,
+	segment.names = segment.names)
 
 return(output)
 
