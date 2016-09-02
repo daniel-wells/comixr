@@ -266,7 +266,8 @@ output <- list(
   specific_parameters = specific_parameters,
   rho = rho,
   kappa = kappa,
-  iteration = iter.count)
+  iteration = iter.count,
+  segment.names = as.character(1:n.segments))
 
 return(output)
 
