@@ -38,6 +38,7 @@ hist(vals.df$vals,breaks=300,xlim=c(-1,9))
 #' @export
 #' @import data.table
 
+fit.model.vb <- function(data,rho.input,input.parameters,max.iterations=40){
   
   ### INITIALISATION
   
