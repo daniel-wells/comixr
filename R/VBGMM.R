@@ -38,7 +38,6 @@ hist(vals.df$vals,breaks=300,xlim=c(-1,9))
 #' @export
 #' @import data.table
 
-fit.model.vb <- function(data,rho.input,input.parameters,init.max=40,break.parameter=50){
   
   ### INITIALISATION
   
@@ -129,7 +128,7 @@ common_parameters$m <- com.param$m
 iter.count <- 0
 
 ##### UPDATES
-for (round in 1:init.max){
+for (round in 1:max.iterations){
 
 #########################
 ##### E step ############
@@ -250,9 +249,6 @@ common_parameters$m <- (1/priors$nu * priors$m) / (1/common_parameters$nu) + (t_
 
 iter.count <- iter.count + 1
 print(paste("Iteration:",iter.count))
-
-if (iter.count>3){print("Done, saving parameter estimates")
-    break}
 
 } # EM updates repetition loop
 

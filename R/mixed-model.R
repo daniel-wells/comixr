@@ -119,7 +119,7 @@ plot.components <- function(vals.df,output.parameters,segment.subset=NULL,type=N
 #'
 #' @param rho.input Numeric value for initial value of rho parameter
 #' @param input.parameters
-#' @param init.max
+#' @param max.iterations
 #' @param break.parameter Numeric value, when the difference in log likelihood 
 #' between two iterations is less than this value the iteration will stop
 #' @return A list of parameters
@@ -129,7 +129,7 @@ plot.components <- function(vals.df,output.parameters,segment.subset=NULL,type=N
 #' @export
 #' @import data.table
 
-fit.model <- function(vals.df,rho.input,input.parameters,init.max=40,break.parameter=50){
+fit.model <- function(vals.df,rho.input,input.parameters,max.iterations=40,break.parameter=50){
 
 ### INITIALISATION
 
@@ -191,7 +191,7 @@ iter.count <- 0
 #microbenchmark(CODE HERE)
 
 ##### UPDATES
-for (round in 1:init.max){
+for (round in 1:max.iterations){
 #### E Updates
 
 # for each common component, cacluate prob for each data point, outputs i x c matrix
