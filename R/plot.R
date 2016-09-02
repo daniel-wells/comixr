@@ -4,17 +4,17 @@ library("data.table")
 # parse learned/output parameters
 parse.output.parameters <- function(output,segment.subset=NULL){
 
-  output.parameters <- data.table(rho=numeric(),w=numeric(),rho_w=numeric(),mu=numeric(),sigma2=numeric(),component.type=character(),segment=character(),iteration=numeric())
+  output.parameters <- data.table(rho=numeric(),w=numeric(),rho_w=numeric(),mu=numeric(),variance=numeric(),component.type=character(),segment=character(),iteration=numeric())
   
-  for (segment in 1:nrow(output$w.specific)){
+  for (segment in 1:nrow(output$specific_parameters$mix_weights)){
     
     output.parameters.temp <- data.frame(
       rho = as.numeric(output$rho[segment]),
-      w = c(output$w.common,output$w.specific[segment,]),
-      rho_w = c((1-output$rho[segment])*output$w.common,output$rho[segment]*output$w.specific[segment,]),
-      mu = c(output$mu.common,output$mu.specific[segment,]),
-      sigma2 = c(output$sigma2.common,output$sigma2.specific[segment,]),
-      component.type = c(rep("common",length(output$mu.common)),rep("specific",length(output$mu.specific[segment,]))),
+      w = c(output$common_parameters$mix_weights,output$specific_parameters$mix_weights[segment,]),
+      rho_w = c((1-output$rho[segment])*output$common_parameters$mix_weights,output$rho[segment]*output$specific_parameters$mix_weights[segment,]),
+      mu = c(output$common_parameters$mean,output$specific_parameters$mean[segment,]),
+      variance = c(output$common_parameters$variance,output$specific_parameters$variance[segment,]),
+      component.type = c(rep("common",length(output$common_parameters$mean)),rep("specific",length(output$specific_parameters$mean[segment,]))),
       segment = output$segment.names[segment],
       iteration = output$iteration
     )
@@ -57,7 +57,7 @@ plot.components <- function(vals.df,output.parameters,segment.subset=NULL,type=N
   for (component in 1:nrow(output.parameters)){
     temp <- rbind(temp,data.table(vals=c(rnorm(70000*output.parameters[component]$rho_w, 
                                              mean = output.parameters[component]$mu, 
-                                             sd = output.parameters[component]$sigma2^0.5),0),
+                                             sd = output.parameters[component]$variance^0.5),0),
                                             comp=component,
                                             seg=output.parameters[component]$segment,
                                             component.type=output.parameters[component]$component.type,
