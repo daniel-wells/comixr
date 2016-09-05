@@ -64,8 +64,12 @@ plot.components <- function(vals.df,output.parameters,segment.subset=NULL,type=N
                                             source="Inferred"))
   }
   
+  # fill in extra columns to enable binding below
   vals.df$component.type <- "Original Data"
   vals.df$source <- "Original Data"
+  if (vals.df$comp == NULL){
+    vals.df$comp <- NA  
+  }
   
   temp <- rbind(temp,vals.df)
   
