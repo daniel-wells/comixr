@@ -1,25 +1,33 @@
 library("ggplot2")
 library("data.table")
 
-# parse learned/output parameters
-parse.output.parameters <- function(output,segment.subset=NULL){
+# parse learned/output parameters - the output is given as a nested list, 
+# but we need a data frame with one line per component (for each segment) to plot with ggplot2
+parse.output.parameters <- function(output, segment.subset = NULL){
 
-  output.parameters <- data.table(rho=numeric(),w=numeric(),rho_w=numeric(),mu=numeric(),variance=numeric(),component.type=character(),segment=character(),iteration=numeric())
+  output.parameters <- data.table(rho = numeric(),
+                                  w = numeric(),
+                                  rho_w = numeric(),
+                                  mu = numeric(),
+                                  variance = numeric(),
+                                  component.type = character(),
+                                  segment = character(),
+                                  iteration = numeric())
   
   for (segment in 1:nrow(output$specific_parameters$mix_weights)){
     
     output.parameters.temp <- data.frame(
       rho = as.numeric(output$rho[segment]),
-      w = c(output$common_parameters$mix_weights,output$specific_parameters$mix_weights[segment,]),
-      rho_w = c((1-output$rho[segment])*output$common_parameters$mix_weights,output$rho[segment]*output$specific_parameters$mix_weights[segment,]),
-      mu = c(output$common_parameters$mean,output$specific_parameters$mean[segment,]),
-      variance = c(output$common_parameters$variance,output$specific_parameters$variance[segment,]),
-      component.type = c(rep("common",length(output$common_parameters$mean)),rep("specific",length(output$specific_parameters$mean[segment,]))),
+      w = c(output$common_parameters$mix_weights, output$specific_parameters$mix_weights[segment, ]),
+      rho_w = c((1 - output$rho[segment]) * output$common_parameters$mix_weights, output$rho[segment] * output$specific_parameters$mix_weights[segment, ]),
+      mu = c(output$common_parameters$mean, output$specific_parameters$mean[segment, ]),
+      variance = c(output$common_parameters$variance, output$specific_parameters$variance[segment, ]),
+      component.type = c(rep("common", length(output$common_parameters$mean)), rep("specific", length(output$specific_parameters$mean[segment, ]))),
       segment = output$segment.names[segment],
       iteration = output$iteration
     )
     
-    output.parameters <- rbind(output.parameters,output.parameters.temp)
+    output.parameters <- rbind(output.parameters, output.parameters.temp)
   }
   
   if(!is.null(segment.subset)){
@@ -45,23 +53,28 @@ parse.output.parameters <- function(output,segment.subset=NULL){
 #' @export
 #' @import ggplot2
 
-plot.components <- function(vals.df,output.parameters,segment.subset=NULL,type=NULL){
-  output.parameters <- parse.output.parameters(output.parameters,segment.subset)
+plot.components <- function(vals.df, output.parameters, segment.subset=NULL, type=NULL){
+  
+  output.parameters <- parse.output.parameters(output.parameters, segment.subset)
   
   if(!is.null(segment.subset)){
     vals.df <- vals.df[seg %in% segment.subset]
   }
   
-  temp <- data.table(vals=numeric(),comp=character(),seg=character(),component.type=character(),source=character())
+  temp <- data.table(vals = numeric(),
+                     comp = character(),
+                     seg = character(),
+                     component.type = character(),
+                     source = character())
   
   for (component in 1:nrow(output.parameters)){
-    temp <- rbind(temp,data.table(vals=c(rnorm(70000*output.parameters[component]$rho_w, 
-                                             mean = output.parameters[component]$mu, 
-                                             sd = output.parameters[component]$variance^0.5),0),
-                                            comp=component,
-                                            seg=output.parameters[component]$segment,
-                                            component.type=output.parameters[component]$component.type,
-                                            source="Inferred"))
+    temp <- rbind(temp,data.table(vals=c(rnorm(70000 * output.parameters[component]$rho_w, 
+                                            mean = output.parameters[component]$mu, 
+                                            sd = output.parameters[component]$variance^0.5), 0),
+                                            comp = component,
+                                            seg = output.parameters[component]$segment,
+                                            component.type = output.parameters[component]$component.type,
+                                            source = "Inferred"))
   }
   
   # fill in extra columns to enable binding below
@@ -71,7 +84,7 @@ plot.components <- function(vals.df,output.parameters,segment.subset=NULL,type=N
     vals.df$comp <- NA  
   }
   
-  temp <- rbind(temp,vals.df)
+  temp <- rbind(temp, vals.df)
   
   # ggplot(temp, aes(vals, group = comp,colour=component.type)) +
   #   geom_freqpoly(binwidth=0.1) +
@@ -80,35 +93,35 @@ plot.components <- function(vals.df,output.parameters,segment.subset=NULL,type=N
   #   facet_wrap(~seg,nrow = 2)
   
   if (is.null(type)){
-  ggplot(temp[source=="Inferred"], aes(vals, colour=component.type)) +
-    geom_freqpoly(binwidth=max(temp$vals)/100) +
-    ggtitle(paste("iteration:",unique(output.parameters$iteration))) +
+  ggplot(temp[source=="Inferred"], aes(vals, colour = component.type)) +
+    geom_freqpoly(binwidth = max(temp$vals) / 100) +
+    ggtitle(paste("iteration:", unique(output.parameters$iteration))) +
     scale_colour_manual(values = c("blue","red","black")) +
     theme(legend.position = "bottom") +
-    facet_wrap(~seg,scales="free",nrow=1) # source~seg for original data underneath
+    facet_wrap(~seg, scales="free", nrow=1) # source~seg for original data underneath
 
-  } else if (type=="density"){
+  } else if (type == "density"){
   ggplot(temp, aes(vals, colour=source)) +
     geom_density() +
-    scale_colour_manual(values = c("red","black")) +
-    ggtitle(paste("iteration:",unique(output.parameters$iteration))) +
+    scale_colour_manual(values = c("red", "black")) +
+    ggtitle(paste("iteration:", unique(output.parameters$iteration))) +
     theme(legend.position = "bottom") +
-    facet_wrap(~seg,scales="free",nrow=1)
+    facet_wrap(~seg, scales = "free", nrow = 1)
     # to plot all components individually
     # geom_density(data=temp[source=="Inferred"],aes(vals,group=comp)) +
-  }else if (type=="QQ"){
+  }else if (type == "QQ"){
     
-    qq <- data.frame(x=numeric(),y=numeric(),segment=character())
+    qq <- data.frame(x = numeric(), y = numeric(), segment = character())
     for (segment in output.parameters$segment){
-      d <- as.data.frame(qqplot(temp[seg==segment & source=="Inferred"]$vals,temp[seg==segment & source=="Original Data"]$vals, plot.it=FALSE))
+      d <- as.data.frame(qqplot(temp[seg == segment & source == "Inferred"]$vals, temp[seg == segment & source == "Original Data"]$vals, plot.it = FALSE))
       d$segment <- segment
-      qq <- rbind(qq,d)
+      qq <- rbind(qq, d)
     }
     qq$segment <- as.factor(as.numeric(qq$segment))
     
     ggplot(qq,aes(x, y)) +
-      geom_point(size=0.5) +
-      geom_abline(intercept=0,slope=1,colour='red') +
-      facet_wrap(~segment,scales="free",nrow=1)
+      geom_point(size = 0.5) +
+      geom_abline(intercept = 0, slope = 1, colour = 'red') +
+      facet_wrap(~segment, scales="free", nrow = 1)
   }
 }
