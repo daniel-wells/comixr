@@ -49,11 +49,11 @@ parse.output.parameters <- function(output, segment.subset = NULL){
 #' If left empty the modeled components are plotted (with common and specific in different colours)
 #'
 #' @examples
-#' plot.components(input.data,output.data,segment.subset="segment16")
+#' plot.components(input.data, output.data, segment.subset = "segment16")
 #' @export
 #' @import ggplot2
 
-plot.components <- function(vals.df, output.parameters, segment.subset=NULL, type=NULL){
+plot.components <- function(vals.df, output.parameters, segment.subset = NULL, type = NULL){
   
   output.parameters <- parse.output.parameters(output.parameters, segment.subset)
   
@@ -61,6 +61,7 @@ plot.components <- function(vals.df, output.parameters, segment.subset=NULL, typ
     vals.df <- vals.df[seg %in% segment.subset]
   }
   
+  # create new data based on fitted model parameters
   temp <- data.table(vals = numeric(),
                      comp = character(),
                      seg = character(),
@@ -84,6 +85,7 @@ plot.components <- function(vals.df, output.parameters, segment.subset=NULL, typ
     vals.df$comp <- NA  
   }
   
+  # combine original data with new data based from model
   temp <- rbind(temp, vals.df)
   
   # ggplot(temp, aes(vals, group = comp,colour=component.type)) +
@@ -92,16 +94,17 @@ plot.components <- function(vals.df, output.parameters, segment.subset=NULL, typ
   #   scale_colour_manual(values = c("blue","red","black")) +
   #   facet_wrap(~seg,nrow = 2)
   
-  if (is.null(type)){
-  ggplot(temp[source=="Inferred"], aes(vals, colour = component.type)) +
+  if (is.null(type)){ # plot freq poly of fitted model components
+                      # one line for common one for specific
+  ggplot(temp[source == "Inferred"], aes(vals, colour = component.type)) +
     geom_freqpoly(binwidth = max(temp$vals) / 100) +
     ggtitle(paste("iteration:", unique(output.parameters$iteration))) +
     scale_colour_manual(values = c("blue","red","black")) +
     theme(legend.position = "bottom") +
-    facet_wrap(~seg, scales="free", nrow=1) # source~seg for original data underneath
+    facet_wrap(~seg, scales = "free", nrow = 1) # source~seg for original data underneath
 
-  } else if (type == "density"){
-  ggplot(temp, aes(vals, colour=source)) +
+  } else if (type == "density"){ # plot total original density vs fitted density
+  ggplot(temp, aes(vals, colour = source)) +
     geom_density() +
     scale_colour_manual(values = c("red", "black")) +
     ggtitle(paste("iteration:", unique(output.parameters$iteration))) +
@@ -109,7 +112,8 @@ plot.components <- function(vals.df, output.parameters, segment.subset=NULL, typ
     facet_wrap(~seg, scales = "free", nrow = 1)
     # to plot all components individually
     # geom_density(data=temp[source=="Inferred"],aes(vals,group=comp)) +
-  }else if (type == "QQ"){
+    
+  } else if (type == "QQ"){ # plot QQ plot of original vs fitted model quantiles
     
     qq <- data.frame(x = numeric(), y = numeric(), segment = character())
     for (segment in output.parameters$segment){
