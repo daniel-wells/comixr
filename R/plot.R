@@ -81,8 +81,8 @@ plot.components <- function(vals.df, output.parameters, segment.subset = NULL, t
   # fill in extra columns to enable binding below
   vals.df$component.type <- "Original Data"
   vals.df$source <- "Original Data"
-  if (vals.df$comp == NULL){
-    vals.df$comp <- NA  
+  if (!any(names(vals.df) == "comp")){
+    vals.df$comp <- NA
   }
   
   # combine original data with new data based from model
