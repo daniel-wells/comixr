@@ -95,7 +95,7 @@ plot.components <- function(vals.df,output.parameters,segment.subset=NULL,type=N
   }else if (type=="QQ"){
     
     qq <- data.frame(x=numeric(),y=numeric(),segment=character())
-    for (segment in segment.subset){
+    for (segment in output.parameters$segment){
       d <- as.data.frame(qqplot(temp[seg==segment & source=="Inferred"]$vals,temp[seg==segment & source=="Original Data"]$vals, plot.it=FALSE))
       d$segment <- segment
       qq <- rbind(qq,d)
