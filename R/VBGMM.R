@@ -31,11 +31,18 @@ fit.model.vb <- function(data,rho.input,input.parameters,max.iterations=40){
     stop("At least one common and one specific component required")
   }
   
+  if (all(colnames(input.parameters) != "mean")) stop("Mean values required")
+  if (all(colnames(input.parameters) != "nu")) stop("Nu values required")
+  if (all(colnames(input.parameters) != "scale")) stop("Scale parameter values required")
+  if (all(colnames(input.parameters) != "shape")) stop("Shape parameter values required")
+  
   ## split input read count data frame into 2: 
   # 1) a list of indexes specifying which read count is in which segment
   # 2) a vector of read counts
-  stopifnot(ncol(data)==2)
+  if(ncol(data) != 2) stop("Two columns of input required")
   setnames(data,names(data),c("vals","seg"))
+
+  if(length(unique(data$seg)) < 2) stop("At least two segments required")
 
 ####################################
 ##### Parse Input Initialise  ######
