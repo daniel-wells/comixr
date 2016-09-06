@@ -72,8 +72,8 @@ names(rho) <- segment.names
 
 t_data_specific <- m_data_specific <- sigma2_specific <- y2_weighted_specific <- y_weighted_specific <- N_specific <- matrix(nrow = n.segments, ncol = n.specific.components)
 t_data <- m_data <- sigma2_common <- y2_weighted_common <- y_weighted_common <- N_common <- matrix(nrow = 1, ncol = n.common.components)
-kappa <- matrix(rep(1/n.segments, n.segments),nrow = 1, ncol = n.segments)
-N_rho <- matrix(rep(1/n.segments, n.segments),nrow = 1, ncol = n.segments)
+kappa <- matrix(rep(500, n.segments),nrow = 1, ncol = n.segments)
+N_rho <- matrix(rep(500, n.segments),nrow = 1, ncol = n.segments)
 
 ##### reponsibilities
 gamma <- gamma_topsum <- matrix(nrow = length(read.count), ncol = n.specific.components)
@@ -85,15 +85,15 @@ psi <- numeric(length = length(read.count))
 # mixing prior
 priors <- vector("list", 5)
 names(priors) <- c("lambda","mean","nu","scale","shape")
-priors$lambda <- 5
+priors$lambda <- 500
 
 # means prior
-priors$mean <- mean(read.count)
-priors$nu <- (sum(abs(range(read.count)))/3)^2
+priors$mean <- mean(input.parameters$mean) #mean(read.count)
+priors$nu <- mean(input.parameters$nu) #(sum(abs(range(read.count)))/3)^2
 
 # precisions prior
-priors$scale <- 1000
-priors$shape <- 0.001
+priors$scale <- mean(input.parameters$scale)
+priors$shape <- mean(input.parameters$shape)
 
 ##### initialise parameters
 # each specific parameter is a j by k matrix
