@@ -7,10 +7,17 @@
 #'  and second being charachter segment names. Column names can be whatever.
 #'
 #' @param rho.input Numeric value for initial value of rho parameter
-#' @param input.parameters
-#' @param max.iterations
+#' 
+#' @param input.parameters Data frame holding initialisation parameters for the prior distribution parameters.
+#' With numeric columns "scale" and "shape" the parameters for the gamma
+#' prior on precision; "mean" and "nu" for the mean and precision parameters for the normal prior on 
+#' the mean; and a charachter column "component.type" with either "common" or "specific"
+#' 
+#' @param max.iterations maximum number of iterations
+#' 
 #' @param break.parameter Numeric value, when the difference in log likelihood 
 #' between two iterations is less than this value the iteration will stop
+#' 
 #' @return A list of parameters
 #'
 #' @examples
@@ -18,7 +25,7 @@
 #' @export
 #' @import data.table
 
-fit.model <- function(vals.df, input.parameters, rho.input = 0.5, max.iterations = 40, break.parameter = 5, algorithm = "EM"){
+fit.model <- function(vals.df, input.parameters, rho.input = 0.5, max.iterations = 40, break.parameter = 5, algorithm = "EM", quiet = FALSE){
 
   ### INITIALISATION
   
@@ -34,6 +41,8 @@ fit.model <- function(vals.df, input.parameters, rho.input = 0.5, max.iterations
   # 2) a vector of read counts
   if(ncol(vals.df) != 2) stop("Two columns of input required")
   setnames(vals.df,names(vals.df),c("vals","seg"))
+  
+  if(length(unique(data$seg)) < 2) stop("At least two segments required")
   
   # get index ranges of each segment
   segment.indicies <- vals.df[,.(index = list(.I)),by=seg]
@@ -54,10 +63,12 @@ fit.model <- function(vals.df, input.parameters, rho.input = 0.5, max.iterations
   # set common component parameters, one per common component
   com.param <- input.parameters[component.type=="common"]
   com.param$component.type <- NULL
-  
+
   n.specific.components <- nrow(input.parameters[component.type=="specific"])
   print(paste(n.specific.components,"segment specific components"))
-  print(paste(nrow(input.parameters[component.type=="common"]),"common components"))
+  n.common.components <- nrow(input.parameters[component.type=="common"])
+  print(paste(n.common.components,"common components"))
+  
   
 if (algorithm == "EM"){
   source("R/fit_model_by_EM.R", local = TRUE)

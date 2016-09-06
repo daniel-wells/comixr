@@ -1,74 +1,7 @@
-#' Fit shared component gaussian mixed model using Variational Bayes
-#'
-#' \code{fit.model.vb} returns parameters for gassians fitted to the data.
-#'
-#'
-#' @param read.count data.frame with two columns, first being numeric read.counts,
-#'  and second being charachter segment names. Column names can be whatever.
-#'
-#' @param rho.input Numeric value for initial value of rho parameter
-#' 
-#' @param input.parameters Data frame holding initialisation parameters for the prior distribution parameters.
-#' With numeric columns "scale" and "shape" the parameters for the gamma
-#' prior on precision; "mean" and "nu" for the mean and precision parameters for the normal prior on 
-#' the mean; and a charachter column "component.type" with either "common" or "specific"
-#' 
-#' @param max.iterations maximum number of iterations
-#' 
-#' @return A list of parameters
-#'
-#' @examples
-#' # see vignette
-#' @export
-#' @import data.table
 
-fit.model.vb <- function(data, input.parameters, rho.input = 0.5, max.iterations = 40, quiet = FALSE){
-  
-  ### INITIALISATION
-  
-  if (any(input.parameters$component.type=="common") & any(input.parameters$component.type=="specific")){
-  } else {
-    stop("At least one common and one specific component required")
-  }
-  
-  if (all(colnames(input.parameters) != "mean")) stop("Mean values required")
   if (all(colnames(input.parameters) != "nu")) stop("Nu values required")
   if (all(colnames(input.parameters) != "scale")) stop("Scale parameter values required")
   if (all(colnames(input.parameters) != "shape")) stop("Shape parameter values required")
-  
-  ## split input read count data frame into 2: 
-  # 1) a list of indexes specifying which read count is in which segment
-  # 2) a vector of read counts
-  if(ncol(data) != 2) stop("Two columns of input required")
-  setnames(data,names(data),c("vals","seg"))
-
-  if(length(unique(data$seg)) < 2) stop("At least two segments required")
-
-####################################
-##### Parse Input Initialise  ######
-####################################
-
-read.count <- data$vals
-
-com.param <- input.parameters[component.type=="common"]
-com.param$component.type <- NULL
-
-n.specific.components <- nrow(input.parameters[component.type=="specific"])
-print(paste(n.specific.components,"segment specific components"))
-n.common.components <- nrow(input.parameters[component.type=="common"])
-print(paste(n.common.components,"common components"))
-
-# get index ranges of each segment
-segment.indicies <- data[,.(index = list(.I)),by=seg]
-segment.names <- segment.indicies$seg
-segment.indicies <- segment.indicies$index
-names(segment.indicies) <- segment.names
-n.segments <- length(segment.indicies)
-print(paste(length(segment.indicies),"segments"))
-
-# rho parameter for each segment
-rho <- rep(rho.input,length(segment.indicies))
-names(rho) <- segment.names
 
 t_data_specific <- m_data_specific <- sigma2_specific <- y2_weighted_specific <- y_weighted_specific <- N_specific <- matrix(nrow = n.segments, ncol = n.specific.components)
 t_data <- m_data <- sigma2_common <- y2_weighted_common <- y_weighted_common <- N_common <- matrix(nrow = 1, ncol = n.common.components)
@@ -256,9 +189,3 @@ output <- list(
   iteration = iter.count,
   segment.names = as.character(1:n.segments))
 
-return(output)
-
-}
-#########################
-##### Done ##############
-#########################
