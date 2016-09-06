@@ -1,22 +1,3 @@
-
-input.parameters <- data.table(
-  mean=c(5,2),
-  nu=c(2),
-  scale=c(4),
-  shape=c(0.125),
-  component.type=c(rep("common",1),rep("specific",1)))
-
-#vals.df <- bulkDP[chr==6 & !is.na(segment.no),.(vals=total,seg=segment.no)]
-vals.df <- data.table(vals = c(rnorm(2500, mean = 6.1, sd = 0.75),
-                               rnorm(2000, mean = 1, sd = 0.3),
-                               rnorm(2500, mean = 5.9, sd = 0.75),
-                               rnorm(3000, mean = 2, sd = 0.3)), seg = c(rep(1,4500),rep(2,5500)))
-
-hist(vals.df[seg==1]$vals,breaks=300,xlim=c(-1,9))
-hist(vals.df[seg==2]$vals,breaks=300,xlim=c(-1,9))
-hist(vals.df$vals,breaks=300,xlim=c(-1,9))
-
-
 #' Fit shared component gaussian mixed model using Variational Bayes
 #'
 #' \code{fit.model.vb} returns parameters for gassians fitted to the data.
@@ -275,16 +256,3 @@ return(output)
 #########################
 ##### Done ##############
 #########################
-
-out <- fit.model.vb(vals.df,0.5,input.parameters)
-
-y_infered <- rbind(data.table(y=rnorm(ceiling(N_common[1])/n.segments, mean = common_parameters$m[1], sd = 1/(common_parameters$b * common_parameters$c)[1]),source="C1"),
-                   data.table(y=rnorm(ceiling(N_specific[1,1]), mean = specific_parameters$m[1,1], sd = 1/(specific_parameters$b * specific_parameters$c)[1,1]),source="S1"))
-
-#data.table(y=rnorm(ceiling(N_specific[2,2]), mean = specific_parameters$m[2,2], sd = 1/(specific_parameters$b * specific_parameters$c)[1,2]),source="S2")
-#data.table(y=rnorm(ceiling(N_common[2]), mean = common_parameters$m[2], sd = 1/(common_parameters$b * common_parameters$c)[2]),source="C2"),
-
-toplot <- rbind(data.frame(y=vals.df[seg==1]$vals,source="original"),y_infered)
-ggplot(toplot,aes(y,colour=source)) + geom_freqpoly(bins=200)
-
-  
