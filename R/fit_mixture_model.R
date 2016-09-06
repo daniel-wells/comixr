@@ -55,7 +55,6 @@ fit.model <- function(data, input.parameters, rho.input = 0.5, max.iterations = 
   segment.indicies <- segment.indicies$index
   names(segment.indicies) <- segment.names
   n.segments <- length(segment.indicies)
-  print(paste(length(segment.indicies),"segments"))
   
   read.count <- data$vals
   
@@ -71,10 +70,9 @@ fit.model <- function(data, input.parameters, rho.input = 0.5, max.iterations = 
   com.param$component.type <- NULL
 
   n.specific.components <- nrow(input.parameters[component.type=="specific"])
-  print(paste(n.specific.components,"segment specific components"))
   n.common.components <- nrow(input.parameters[component.type=="common"])
-  print(paste(n.common.components,"common components"))
   
+  print(paste(n.segments,"segments, each with",n.common.components,"common component(s), and",n.specific.components,"specific component(s)"))
   
 if (algorithm == "EM"){
   output <- EM(segment.indicies, read.count, rho, com.param, n.specific.components, n.common.components, n.segments, input.parameters, max.iterations, break.parameter, quiet, segment.names)
