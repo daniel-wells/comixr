@@ -40,7 +40,6 @@ parameters.nocommon <- data.table(
    shape=c(0.125),
    component.type=c("specific","specific"))
 
-
 parameters.nocomponenttype <- data.table(
 	mean=c(6,4),
 	nu=c(0.5),
@@ -52,7 +51,6 @@ parameters.nomean <- data.table(
 	scale=c(4),
 	shape=c(0.125),
 	component.type=c("specific","common"))
-
 
 parameters.noscale <- data.table(
 	mean=c(6,4),

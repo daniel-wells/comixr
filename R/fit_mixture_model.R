@@ -77,11 +77,9 @@ fit.model <- function(data, input.parameters, rho.input = 0.5, max.iterations = 
   
   
 if (algorithm == "EM"){
-  source("R/fit_model_by_EM.R")
   output <- EM(segment.indicies, read.count, rho, com.param, n.specific.components, n.common.components, n.segments, input.parameters, max.iterations, break.parameter, quiet, segment.names)
   
 } else if (algorithm == "VB"){
-  source("R/fit_model_by_VB.R")
   output <- VB(segment.indicies, read.count, rho, com.param, n.specific.components, n.common.components, n.segments, input.parameters, max.iterations, break.parameter, quiet, segment.names)
   
 } else { stop("Algorithm should be either EM or VB") }
