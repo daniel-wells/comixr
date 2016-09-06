@@ -1,61 +1,3 @@
-#' Fit shared component gaussian mixed model.
-#'
-#' \code{fit.model} returns parameters for gassians fitted to the data.
-#'
-#'
-#' @param read.count data.frame with two columns, first being numeric read.counts,
-#'  and second being charachter segment names. Column names can be whatever.
-#'
-#' @param rho.input Numeric value for initial value of rho parameter
-#' @param input.parameters
-#' @param max.iterations
-#' @param break.parameter Numeric value, when the difference in log likelihood 
-#' between two iterations is less than this value the iteration will stop
-#' @return A list of parameters
-#'
-#' @examples
-#' # see vignette
-#' @export
-#' @import data.table
-
-fit.model <- function(vals.df,rho.input,input.parameters,max.iterations=40,break.parameter=50){
-
-### INITIALISATION
-
-  if (any(input.parameters$component.type=="common") & any(input.parameters$component.type=="specific")){
-  } else {
-    stop("At least one common and one specific component required")
-  }
-
-## split input read count data frame into 2: 
-# 1) a list of indexes specifying which read count is in which segment
-# 2) a vector of read counts
-stopifnot(ncol(vals.df)==2)
-setnames(vals.df,names(vals.df),c("vals","seg"))
-
-# get index ranges of each segment
-segment.indicies <- vals.df[,.(index = list(.I)),by=seg]
-segment.names <- segment.indicies$seg
-segment.indicies <- segment.indicies$index
-names(segment.indicies) <- segment.names
-print(paste(length(segment.indicies),"segments"))
-
-read.count <- vals.df$vals
-
-## parse input parameters
-
-# rho parameter for each segment
-rho <- rep(rho.input,length(segment.indicies))
-stopifnot(length(segment.indicies)==length(rho))
-names(rho) <- segment.names
-
-# set common component parameters, one per common component
-com.param <- input.parameters[component.type=="common"]
-com.param$component.type <- NULL
-
-n.specific.components <- nrow(input.parameters[component.type=="specific"])
-print(paste(n.specific.components,"segment specific components"))
-print(paste(nrow(input.parameters[component.type=="common"]),"common components"))
 
 
 # initialise segment specific parameter holding matricies
@@ -65,7 +7,7 @@ mu.k <- sigma2.k <- w.k <- matrix(nrow=length(read.count),ncol=n.specific.compon
 
 for (row in 1:n.specific.components){
   w.k[,row] <- input.parameters[component.type=="specific"][row]$w
-  mu.k[,row] <- input.parameters[component.type=="specific"][row]$mu
+  mu.k[,row] <- input.parameters[component.type=="specific"][row]$mean
   sigma2.k[,row] <- input.parameters[component.type=="specific"][row]$sigma2
 }
 
@@ -84,7 +26,7 @@ for (round in 1:max.iterations){
 #### E Updates
 
 # for each common component, cacluate prob for each data point, outputs i x c matrix
-common <- apply(com.param, 1, function(params){ params['w'] * dnorm(read.count, params['mu'], params['sigma2']^0.5)})
+common <- apply(com.param, 1, function(params){ params['w'] * dnorm(read.count, params['mean'], params['sigma2']^0.5)})
 
 # output i x k matrix
 specific <- w.k * dnorm(read.count, mu.k, sigma2.k^0.5)
@@ -120,9 +62,9 @@ topsum <- colSums(phi_ic * psi_i)
 
 com.param$w <- topsum / sum(psi_i)
 
-com.param$mu <- colSums(phi_ic * psi_i * read.count) / topsum
+com.param$mean <- colSums(phi_ic * psi_i * read.count) / topsum
 
-com.param$sigma2 <- colSums(phi_ic * psi_i * outer(read.count,com.param$mu, FUN="-")^2) / topsum
+com.param$sigma2 <- colSums(phi_ic * psi_i * outer(read.count,com.param$mean, FUN="-")^2) / topsum
 
 for (segment in segment.names){
   # for each segment j, there are k weightings
@@ -171,20 +113,11 @@ output <- list(
 		variance = sigma2.k.u),
 	common_parameters = data.table(
 		mix_weights = com.param$w,
-		mean = com.param$mu,
+		mean = com.param$mean,
 		variance = com.param$sigma2),
 	rho = unname(rho),
 	iteration = iter.count,
 	likelihood = likelihood.byiter,
 	segment.names = segment.names)
 
-return(output)
-
-}# end of fit.model function
-
-
-# for debugging enter data manually
-# vals.df <- chr6.input
-# input.parameters <- initial.parameters.realistic
-# rho.input <- 0.5
 
