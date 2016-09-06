@@ -15,7 +15,7 @@ initial.parameters.vb <- data.table(
    shape=c(0.125),
    component.type=c("common","specific"))
 
-output <- fit.model.vb(input, initial.parameters.vb, quiet = T)
+output <- fit.model(input, initial.parameters.vb, quiet = T, algorithm = "VB")
 
 test_that("common parameter estimates are reasonable", {
 	expect_equal(output$common_parameters$mean, 5, tolerance = 0.3)
@@ -53,7 +53,7 @@ initial.parameters.basic.vb <- data.table(
   shape = c(0.125),
   component.type = c("common","common","specific","specific"))
 
-output.2 <- fit.model.vb(test.data.basic, initial.parameters.basic.vb, max.iterations = 30, quiet = T)
+output.2 <- fit.model(test.data.basic, initial.parameters.basic.vb, max.iterations = 30, quiet = T, algorithm = "VB")
 
 test_that("common parameter estimates are reasonable", {
 	expect_equal(output.2$common_parameters$mean, c(7,11), tolerance = 0.1)

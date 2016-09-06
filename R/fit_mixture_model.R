@@ -18,6 +18,11 @@
 #' @param break.parameter Numeric value, when the difference in log likelihood 
 #' between two iterations is less than this value the iteration will stop
 #' 
+#' @param algorithm Charachter specifying which inference algorithm to use.
+#' One of either "EM" (Expectation-Maximisation) or "VB" (Variational-Bayes)
+#' 
+#' @param quiet, Logical specifying whether the iteration number should be printed for each iteration
+#' 
 #' @return A list of parameters
 #'
 #' @examples
@@ -25,7 +30,7 @@
 #' @export
 #' @import data.table
 
-fit.model <- function(vals.df, input.parameters, rho.input = 0.5, max.iterations = 40, break.parameter = 5, algorithm = "EM", quiet = FALSE){
+fit.model <- function(data, input.parameters, rho.input = 0.5, max.iterations = 40, break.parameter = 5, algorithm = "EM", quiet = FALSE){
 
   ### INITIALISATION
   
@@ -39,19 +44,20 @@ fit.model <- function(vals.df, input.parameters, rho.input = 0.5, max.iterations
   ## split input read count data frame into 2: 
   # 1) a list of indexes specifying which read count is in which segment
   # 2) a vector of read counts
-  if(ncol(vals.df) != 2) stop("Two columns of input required")
-  setnames(vals.df,names(vals.df),c("vals","seg"))
+  if(ncol(data) != 2) stop("Two columns of input required")
+  setnames(data,names(data),c("vals","seg"))
   
   if(length(unique(data$seg)) < 2) stop("At least two segments required")
   
   # get index ranges of each segment
-  segment.indicies <- vals.df[,.(index = list(.I)),by=seg]
+  segment.indicies <- data[,.(index = list(.I)),by=seg]
   segment.names <- segment.indicies$seg
   segment.indicies <- segment.indicies$index
   names(segment.indicies) <- segment.names
+  n.segments <- length(segment.indicies)
   print(paste(length(segment.indicies),"segments"))
   
-  read.count <- vals.df$vals
+  read.count <- data$vals
   
   ## parse input parameters
   
@@ -71,10 +77,12 @@ fit.model <- function(vals.df, input.parameters, rho.input = 0.5, max.iterations
   
   
 if (algorithm == "EM"){
-  source("R/fit_model_by_EM.R", local = TRUE)
+  source("R/fit_model_by_EM.R")
+  output <- EM(segment.indicies, read.count, rho, com.param, n.specific.components, n.common.components, n.segments, input.parameters, max.iterations, break.parameter, quiet, segment.names)
   
 } else if (algorithm == "VB"){
-  source("R/fit_model_by_VB.R", local = TRUE) 
+  source("R/fit_model_by_VB.R")
+  output <- VB(segment.indicies, read.count, rho, com.param, n.specific.components, n.common.components, n.segments, input.parameters, max.iterations, break.parameter, quiet, segment.names)
   
 } else { stop("Algorithm should be either EM or VB") }
 

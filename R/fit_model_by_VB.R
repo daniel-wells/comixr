@@ -1,4 +1,6 @@
 
+VB <- function(segment.indicies, read.count, rho, com.param, n.specific.components, n.common.components, n.segments, input.parameters, max.iterations, break.parameter, quiet, segment.names){
+  
   if (all(colnames(input.parameters) != "nu")) stop("Nu values required")
   if (all(colnames(input.parameters) != "scale")) stop("Scale parameter values required")
   if (all(colnames(input.parameters) != "shape")) stop("Shape parameter values required")
@@ -189,3 +191,5 @@ output <- list(
   iteration = iter.count,
   segment.names = as.character(1:n.segments))
 
+return(output)
+}

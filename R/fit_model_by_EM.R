@@ -1,4 +1,4 @@
-
+EM <- function(segment.indicies, read.count, rho, com.param, n.specific.components, n.common.components, n.segments, input.parameters, max.iterations, break.parameter, quiet, segment.names){
 
 # initialise segment specific parameter holding matricies
 mu.k <- sigma2.k <- w.k <- matrix(nrow=length(read.count),ncol=n.specific.components)
@@ -120,4 +120,5 @@ output <- list(
 	likelihood = likelihood.byiter,
 	segment.names = segment.names)
 
-
+return(output)
+}

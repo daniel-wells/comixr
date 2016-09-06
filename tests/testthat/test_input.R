@@ -20,9 +20,9 @@ input.onecolumn <- data.table(vals = rnorm(2000, mean = 5.0, sd = 0.75))
 input.threecolumn <- data.table(vals = rnorm(2000, mean = 5.0, sd = 0.75), seg = 1, extra = "hi")
 
 test_that("Input data is ok", {
-	expect_error(fit.model.vb(input.onesegment, parameters.ok), "At least two segments required", fixed=TRUE)
-	expect_error(fit.model.vb(input.onecolumn, parameters.ok), "Two columns of input required", fixed=TRUE)
-	expect_error(fit.model.vb(input.threecolumn, parameters.ok), "Two columns of input required", fixed=TRUE)
+	expect_error(fit.model(input.onesegment, parameters.ok, algorithm = "VB"), "At least two segments required", fixed=TRUE)
+	expect_error(fit.model(input.onecolumn, parameters.ok, algorithm = "VB"), "Two columns of input required", fixed=TRUE)
+	expect_error(fit.model(input.threecolumn, parameters.ok, algorithm = "VB"), "Two columns of input required", fixed=TRUE)
 })
 
 
@@ -74,12 +74,12 @@ parameters.nonu <- data.table(
 
 
 test_that("Input parameters are ok", {
-	expect_error(fit.model.vb(input.ok, parameters.nospecific), "At least one common and one specific component required", fixed=TRUE)
-	expect_error(fit.model.vb(input.ok, parameters.nocommon), "At least one common and one specific component required", fixed=TRUE)
-	expect_error(fit.model.vb(input.ok, parameters.nomean), "Mean values required", fixed=TRUE)
-	expect_error(fit.model.vb(input.ok, parameters.nonu), "Nu values required", fixed=TRUE)
-	expect_error(fit.model.vb(input.ok, parameters.noshape), "Shape parameter values required", fixed=TRUE)
-	expect_error(fit.model.vb(input.ok, parameters.noscale), "Scale parameter values required", fixed=TRUE)
-	expect_error(fit.model.vb(input.ok, parameters.nocomponenttype), "At least one common and one specific component required", fixed=TRUE)
+	expect_error(fit.model(input.ok, parameters.nospecific, algorithm = "VB"), "At least one common and one specific component required", fixed=TRUE)
+	expect_error(fit.model(input.ok, parameters.nocommon, algorithm = "VB"), "At least one common and one specific component required", fixed=TRUE)
+	expect_error(fit.model(input.ok, parameters.nomean, algorithm = "VB"), "Mean values required", fixed=TRUE)
+	expect_error(fit.model(input.ok, parameters.nonu, algorithm = "VB"), "Nu values required", fixed=TRUE)
+	expect_error(fit.model(input.ok, parameters.noshape, algorithm = "VB"), "Shape parameter values required", fixed=TRUE)
+	expect_error(fit.model(input.ok, parameters.noscale, algorithm = "VB"), "Scale parameter values required", fixed=TRUE)
+	expect_error(fit.model(input.ok, parameters.nocomponenttype, algorithm = "VB"), "At least one common and one specific component required", fixed=TRUE)
 
 })
