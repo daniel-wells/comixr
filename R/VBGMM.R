@@ -22,7 +22,7 @@
 #' @export
 #' @import data.table
 
-fit.model.vb <- function(data,rho.input,input.parameters,max.iterations=40){
+fit.model.vb <- function(data, input.parameters, rho.input = 0.5, max.iterations = 40, quiet = FALSE){
   
   ### INITIALISATION
   
@@ -218,7 +218,6 @@ sum.of.psi <- sum(psi)
 
 common_parameters$mix_weights <- colSums(phi * psi) / sum.of.psi
 N_common <- common_parameters$mix_weights * sum(psi)
-print(paste("sum of N Common:", sum(N_common)))
 
 y_weighted_common <- colSums( psi * phi * read.count ) / sum.of.psi
 y2_weighted_common <- colSums( psi * phi * read.count^2 ) / sum.of.psi
@@ -240,7 +239,7 @@ common_parameters$nu <- 1/(1/priors$nu + t_data)
 common_parameters$mean <- (1/priors$nu * priors$mean) / (1/common_parameters$nu) + (t_data * m_data) / (1/common_parameters$nu)
 
 iter.count <- iter.count + 1
-print(paste("Iteration:",iter.count))
+if (quiet == FALSE) print(paste("Iteration:",iter.count))
 
 } # EM updates repetition loop
 
