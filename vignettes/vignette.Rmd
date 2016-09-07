@@ -113,7 +113,7 @@ To fit a shared gaussian mixture model to this data we need to specify the numbe
 ```{r}
 initial.parameters.basic <- data.table(
   w=c(0.5),
-  mu=c(3.5,10,2,11),
+  mean=c(3.5,10,2,11),
   sigma2=c(0.6^2),
   component.type=c("common","common","specific","specific"))
 
@@ -130,8 +130,8 @@ initial.parameters.basic
 To fit the model pass the data (without the component labels), the initial rho, and the other componentwise initial parameters to the fit.model() function.
 
 ```{r}
-output.test.basic <- fit.model(test.data.basic[,.(vals,seg)], rho=0.5, initial.parameters.basic)
-output.test.basic.vb <- fit.model.vb(test.data.basic[,.(vals,seg)], initial.parameters.basic.vb, max.iterations=50)
+output.test.basic <- fit.model(test.data.basic[,.(vals,seg)], initial.parameters.basic)
+output.test.basic.vb <- fit.model(test.data.basic[,.(vals,seg)], initial.parameters.basic.vb, max.iterations=50, algorithm="VB")
 ```
 
 We can then visualise the result using the plot.components() function.
@@ -155,11 +155,11 @@ test.data.realistic <- rbind(
 
 initial.parameters.realistic <- data.table(
   w=c(0.5),
-  mu=c(3,4,6,8,10,13,17,20,25,40,50,300,1,2),
+  mean=c(3,4,6,8,10,13,17,20,25,40,50,300,1,2),
   sigma2=c(8^2),
   component.type=c(rep("common",9),rep("specific",5)))
 
-output.realistic <- fit.model(test.data.realistic[,.(vals,seg)],rho=0.5,initial.parameters.realistic)
+output.realistic <- fit.model(test.data.realistic[,.(vals,seg)],initial.parameters.realistic, max.iterations=12)
 
 plot.components(test.data.realistic,output.realistic)
 ```
