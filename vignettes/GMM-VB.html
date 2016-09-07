@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Daniel Wells" />
+
+<meta name="date" content="2016-09-07" />
+
+<title>VBGMM</title>
+
+
+
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">VBGMM</h1>
+<h4 class="author"><em>Daniel Wells</em></h4>
+<h4 class="date"><em>2016-09-07</em></h4>
+
+
+
+<div id="the-model" class="section level1">
+<h1>The Model</h1>
+<p>Let <span class="math inline">\(\{ y_i \}_{i=1}^n\)</span> denote the coverage at position <span class="math inline">\(i\)</span> for <span class="math inline">\(n\)</span> loci across the chromosome/genome.</p>
+<p>Let <span class="math inline">\(\{ s_i \}_{i=1}^n\)</span> denote the segment number for each of those locations where <span class="math inline">\(s_i \in \{ 1, \dots, S \}\)</span> and <span class="math inline">\(S\)</span> is the total number of segments.</p>
+\begin{align}
+    p(y_i | s_i = j, w, \mu, \sigma^2 ) = 
+    (1-\rho_{j}) \underbrace{\sum_{c=1}^{C} w_{0,c} f( y_i; \mu_{0,c}, \beta_{0,c} )}_{\text{Common}} + 
+    \rho_{j} \underbrace{ \sum_{k=1}^{K} w_{j,k} f( y_i; \mu_{j,k}, \beta_{j,k} ) }_{\text{Segment-specific}}
+\end{align}
+<p>where <span class="math inline">\(f\)</span> is the density function for the Normal distribution, <span class="math inline">\(\sum_{k=1}^K w_{j,k} = 1\)</span> and <span class="math inline">\(\sum_{c=1}^{C} w_{0,c} = 1\)</span>.</p>
+<p>These equations are based on <a href="http://www.robots.ox.ac.uk/~sjrob/Pubs/vbmog.ps.gz">Variational Bayes for 1-dimensional Mixture Models (2000)</a> (gzip download) by W.D. Penny and S.J. Roberts which is itself a 1 dimensional case of the mixture model proposed in <a href="http://www.gatsby.ucl.ac.uk/publications/papers/03-2000.ps">A Variational Bayesian Framework for Graphical Models (2000)</a> by Hagai Attias.</p>
+<div id="priors" class="section level2">
+<h2>Priors</h2>
+\begin{align}
+P(w) = \mathcal{Dir}(w|\lambda) \\
+P(\rho) = \mathcal{Dir}(\rho|\kappa) \\
+P(\beta) = \Gamma(\beta|b_0,c_0) \\
+P(\mu) = \mathcal{N}(\mu|m_0,\nu_0) \\
+\end{align}
+</div>
+</div>
+<div id="updates" class="section level1">
+<h1>Updates</h1>
+<div id="e-step" class="section level2">
+<h2>E Step</h2>
+<p>Compute the probability segment specific component k is responsible for data point y</p>
+<p><span class="math display">\[
+    \tilde{\gamma}_{i,k}= \tilde{w}_{j,k} \tilde{\beta}_{j,k}^{1/2} exp[ - \frac{1}{2} \bar{\beta}_{j,k} (y_i^2 + m_{j,k}^2 + \nu_{j,k} -2 m_{j,k} y_i) ]
+\]</span></p>
+<p><span class="math display">\[
+  log(\tilde{w}_{j,k}) = \Psi(\lambda_{j,k}) - \Psi(\sum_{k=1}^K\lambda_{j,k})
+\]</span></p>
+<p><span class="math display">\[
+  log(\tilde{\beta}_{j,k}) = \Psi(c_{j,k}) + log(b_{j,k})
+\]</span></p>
+<p><span class="math display">\[
+  \bar{\beta}_{j,k} = c_{j,k} b_{j,k}
+\]</span></p>
+<p>Normalise by sum of all components <span class="math display">\[
+    \gamma_{i,k} = \frac{\tilde{\gamma}_{i,k}}{\sum_{k=1}^K\tilde{\gamma}_{i,k}}
+\]</span></p>
+<div id="section" class="section level6">
+<h6></h6>
+<p>Compute the probability component c common to all segments is responsible for data point y</p>
+<p><span class="math display">\[
+    \tilde{\phi}_{i,c}= \tilde{w}_{0,c} \tilde{\beta}_{0,c}^{1/2} exp[ - \frac{1}{2} \bar{\beta}_{0,c} (y_i^2 + m_{0,c}^2 + \nu_{0,c} -2 m_{0,c} y_i) ]
+\]</span></p>
+<p><span class="math display">\[
+  log(\tilde{w}_{0,c}) = \Psi(\lambda_{0,c}) - \Psi(\sum_{c=1}^C\lambda_{0,c})
+\]</span></p>
+<p><span class="math display">\[
+  log(\tilde{\beta}_{0,c}) = \Psi(c_{0,c}) + log(b_{0,c})
+\]</span></p>
+<p><span class="math display">\[
+  \bar{\beta}_{0,c} = c_{0,c} b_{0,c}
+\]</span></p>
+<p>Normalise by sum of all components <span class="math display">\[
+    \phi_{i,c} = \frac{\tilde{\phi}_{i,c}}{\sum_{c=1}^C\tilde{\phi}_{i,c}}
+\]</span></p>
+</div>
+<div id="section-1" class="section level6">
+<h6></h6>
+<p>Compute probability data point is in common rather than segment sepecific component</p>
+<p><span class="math display">\[
+  \psi_i = \frac{(1-\rho_j) \sum_{c=1}^C\tilde{\phi}_{0,c}}{(1-\rho_j) \sum_{c=1}^C\tilde{\phi}_{0,c} + \rho_j \sum_{k=1}^K\tilde{\gamma}_{i,k}}
+\]</span></p>
+<p><span class="math display">\[
+  log(\rho_j) = \Psi(\kappa_j) - \Psi(\sum_{j=1}^J\kappa_j)
+\]</span></p>
+</div>
+</div>
+<div id="m-step" class="section level2">
+<h2>M Step</h2>
+<p>Proportion of data in component c|common or k|specific for each segment <span class="math display">\[
+  \bar{w}_{j,k} = \frac{\sum_{i:s_i=j} (1-\psi_i) \gamma_{i,k}}{\sum_{i:s_i=j} (1-\psi_i)} 
+\]</span></p>
+<p><span class="math display">\[
+  \bar{w}_{0,c} = \frac{\sum_{i=1}^n \psi_i \phi_{i,c}}{\sum_{i=1}^n \psi_i} 
+\]</span></p>
+<p><span class="math display">\[
+  \rho_j = 1 - \frac{\sum_{i:s_i=j} \psi_i}{\sum_{i:s_i=j} 1}
+\]</span></p>
+<p>number of data points in component c / k for each segment <span class="math display">\[
+  \bar{N}_{j,k} = \bar{w}_{j,k} \sum_{i:s_i=j} (1-\psi_i)
+\]</span></p>
+<p><span class="math display">\[
+  \bar{N}_{0,c} = \bar{w}_{0,c} \sum_{i=1}^n \psi_i
+\]</span></p>
+<p><span class="math display">\[
+  \bar{N}_{\rho_j} = \rho_j \sum_{i:s_i=j} 1
+\]</span></p>
+<p>Data values weighted by probability of each component <span class="math display">\[
+  \bar{y}_{j,k} = \frac{\sum_{i:s_i=j} (1-\psi_i) \gamma_{i,k} y_n}{\sum_{i:s_i=j} (1-\psi_i)}
+\]</span></p>
+<p><span class="math display">\[
+  \tilde{y}_{j,k}^2 = \frac{\sum_{i:s_i=j} (1-\psi_i) \gamma_{i,k} y^2_n}{\sum_{i:s_i=j} (1-\psi_i)}
+\]</span></p>
+<p><span class="math display">\[
+  \bar{y}_{0,c} = \frac{\sum_{i=1}^n \psi_i \phi_{0,c} y_n}{\sum_{i=1}^n \psi_i}
+\]</span></p>
+<p><span class="math display">\[
+  \tilde{y}_{0,c}^2 = \frac{\sum_{i=1}^n \psi_i \phi_{0,c} y^2_n}{\sum_{i=1}^n \psi_i}
+\]</span></p>
+<p>Mixing weight hyperparameter update <span class="math display">\[
+  \lambda_{j,k} = \bar{N}_{j,k} + \lambda_0
+\]</span></p>
+<p><span class="math display">\[
+  \lambda_{0,c} = \bar{N}_{0,c} + \lambda_0
+\]</span></p>
+<p><span class="math display">\[
+  \kappa_j = \bar{N}_{\rho_j} + \kappa_0
+\]</span></p>
+<p>Variance of component c / k for each segment <span class="math display">\[
+  \tilde{\sigma}_{j,k}^2 = \tilde{y}_{j,k}^2 + \bar{w}_{j,k}( m_{j,k}^2 + \nu_{j,k} ) - 2 m_{j,k} \bar{y}_{j,k}
+\]</span></p>
+<p><span class="math display">\[
+  \tilde{\sigma}_{0,c}^2 = \tilde{y}_{0,c}^2 + \bar{w}_{0,c}( m_{0,c}^2 + \nu_{0,c} ) - 2 m_{0,c} \bar{y}_{0,c}
+\]</span></p>
+<p>Precision hyperparameter updates <span class="math display">\[
+  \frac{1}{b_{j,k}} = \frac{\tilde{\sigma}_{j,k}^2}{2} (\sum_{i:s_i=j} (1-\psi_i)) + \frac{1}{b_0}
+\]</span></p>
+<p><span class="math display">\[
+  \frac{1}{b_{0,c}} = \frac{\tilde{\sigma}_{0,c}^2}{2} (\sum_{i=1}^n \psi_i) + \frac{1}{b_0}
+\]</span></p>
+<p><span class="math display">\[
+  c_{j,k} = \frac{\bar{N}_{j,k}}{2} + c_0
+\]</span></p>
+<p><span class="math display">\[
+  c_{0,c} = \frac{\bar{N}_{0,c}}{2} + c_0
+\]</span></p>
+<p>Mean hyperparameter updates <span class="math display">\[
+  m_{data}(j,k) = \bar{y}_{j,k}/\bar{w}_{j,k}
+\]</span></p>
+<p><span class="math display">\[
+  m_{data}(0,c) = \bar{y}_{0,c}/\bar{w}_{0,c}
+\]</span></p>
+<p><span class="math display">\[
+  t_{data}(j,k) = \bar{N}_{j,k} \bar{\beta}_{j,k}
+\]</span></p>
+<p><span class="math display">\[
+  t_{data}(0,c) = \bar{N}_{0,c} \bar{\beta}_{0,c}
+\]</span></p>
+<p><span class="math display">\[
+  \tau = \frac{1}{\nu}
+\]</span></p>
+<p><span class="math display">\[
+  \tau_{j,k} = \tau_0 + \tau_{data}(j,k)
+\]</span></p>
+<p><span class="math display">\[
+  \tau_{0,c} = \tau_0 + \tau_{data}(0,c)
+\]</span></p>
+<p><span class="math display">\[
+  m_{j,k} = \frac{\tau_0}{\tau_{j,k}} m_0 + \frac{\tau_{data}(j,k)}{\tau_{j,k}} m_{data}(j,k)
+\]</span></p>
+<p><span class="math display">\[
+  m_{0,c} = \frac{\tau_0}{\tau_{0,c}} m_0 + \frac{\tau_{data}(0,c)}{\tau_{0,c}} m_{data}(0,c)
+\]</span></p>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
