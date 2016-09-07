@@ -30,7 +30,7 @@
 #' @export
 #' @import data.table
 
-fit.model <- function(data, input.parameters, rho.input = 0.5, max.iterations = 40, break.parameter = 5, algorithm = "EM", quiet = FALSE){
+fit.model <- function(data, input.parameters, rho = 0.5, max.iterations = 40, break.parameter = 5, algorithm = "EM", quiet = FALSE){
 
   ### INITIALISATION
   
@@ -61,7 +61,9 @@ fit.model <- function(data, input.parameters, rho.input = 0.5, max.iterations = 
   ## parse input parameters
   
   # rho parameter for each segment
-  rho <- rep(rho.input,length(segment.indicies))
+  if (length(rho)!=1 | class(rho)!="numeric") stop("rho should be a single numeric value")
+  if (rho>1 | rho<0) stop("rho should be between 0 and 1")
+  rho <- rep(rho,length(segment.indicies))
   stopifnot(length(segment.indicies)==length(rho))
   names(rho) <- segment.names
   
