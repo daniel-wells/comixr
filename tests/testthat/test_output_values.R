@@ -19,7 +19,7 @@ output <- fit.model(input, initial.parameters.vb, quiet = T, algorithm = "VB")
 
 test_that("common parameter estimates are reasonable", {
 	expect_equal(output$common_parameters$mean, 5, tolerance = 0.3)
-	expect_equal(output$common_parameters$variance, 0.56, tolerance = 0.1)
+	expect_equal(output$common_parameters$variance, 0.75^2, tolerance = 0.1)
 	expect_equal(output$common_parameters$mix_weights, 1, tolerance = 0.05)
 	
 	expect_equal(output$rho, c("1"= 1/3, "2" = 1/2), tolerance = 0.05)
