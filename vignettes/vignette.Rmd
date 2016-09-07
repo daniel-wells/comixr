@@ -20,10 +20,10 @@ devtools::load_all()
 Let's simulate two datasets, each with a common density at ~5 and with some noise component with mean and variance unique to each dataset.
 
 ```{r}
-input <- rbind(data.table(vals = rnorm(2000, mean = 5.0, sd = 0.75),seg="data1"),
-               data.table(vals = rnorm(1000, mean = 0.5, sd = 1.0),seg="data1"),
-              data.table(vals = rnorm(2000, mean = 5.5, sd = 0.75),seg="data2"),
-              data.table(vals = rnorm(2000, mean = 4.0, sd = 3.0),seg="data2"))
+input <- rbind(data.table(vals = rnorm(2000, mean = 5.0, sd = 0.75),seg=1),
+               data.table(vals = rnorm(1000, mean = 0.5, sd = 1.0),seg=1),
+              data.table(vals = rnorm(2000, mean = 5.5, sd = 0.75),seg=2),
+              data.table(vals = rnorm(2000, mean = 4.0, sd = 3.0),seg=2))
 ```
 
 We need to specify our initial components for each component type:
@@ -31,9 +31,17 @@ We need to specify our initial components for each component type:
 ```{r}
 initial.parameters <- data.table(
   w = 0.5,
-  mu = c(6,4),
+  mean = c(6,4),
   sigma2 = 1,
   component.type = c("common","specific"))
+
+ initial.parameters.vb <- data.table(
+   mean=c(6,4),
+   nu=c(0.5),
+   scale=c(4),
+   shape=c(0.125),
+   component.type=c("common","specific"))
+
 
 initial.parameters
 ```
@@ -41,14 +49,18 @@ initial.parameters
 Now we can fit the model:
 
 ```{r}
-output <- fit.model(input, rho=0.5, initial.parameters)
+output <- fit.model(input, initial.parameters)
+output.vb <- fit.model(input, initial.parameters.vb, algorithm = "VB")
 ```
 
 And plot the results:
 
-```{r,fig.width=7}
-input$comp <- "Y"
-plot.components(input,output)
+```{r, fig.width = 7}
+plot.components(input, output)
+plot.components(input, output, type = "density")
+
+plot.components(input, output.vb)
+plot.components(input, output.vb, type = "density")
 ```
 
 ## Multiple common and specific components
@@ -59,18 +71,18 @@ Lets simulate some example data, two data sets, each with four components, two o
 library(data.table)
 
 # Common components
-component1 <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5),seg="seg1")
-component2 <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5),seg="seg2")
+component1 <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5), seg = 1)
+component2 <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5), seg = 2)
 
-component3 <- data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5),seg="seg1")
-component4 <- data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5),seg="seg2")
+component3 <- data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5), seg = 1)
+component4 <- data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5), seg = 2)
 
 # Unique components
-component5 <- data.table(comp = "C", vals = rnorm(3000, mean = 1, sd = 0.5),seg="seg1")
-component6 <- data.table(comp = "D", vals = rnorm(1000, mean = 3, sd = 0.5),seg="seg2")
+component5 <- data.table(comp = "C", vals = rnorm(3000, mean = 1, sd = 0.5), seg = 1)
+component6 <- data.table(comp = "D", vals = rnorm(2000, mean = 3, sd = 0.5), seg = 2)
 
-component7 <- data.table(comp = "E", vals = rnorm(1500, mean = 10, sd = 0.5),seg="seg1")
-component8 <- data.table(comp = "F", vals = rnorm(1500, mean = 12, sd = 0.5),seg="seg2")
+component7 <- data.table(comp = "E", vals = rnorm(1500, mean = 10, sd = 0.5), seg = 1)
+component8 <- data.table(comp = "F", vals = rnorm(1500, mean = 13, sd = 0.5), seg = 2)
 
 test.data.basic <- rbind(component1,component2,component3,component4,component5,component6,component7,component8)
 
@@ -101,9 +113,16 @@ To fit a shared gaussian mixture model to this data we need to specify the numbe
 ```{r}
 initial.parameters.basic <- data.table(
   w=c(0.5),
-  mu=c(3.5,10,2,12),
+  mu=c(3.5,10,2,11),
   sigma2=c(0.6^2),
   component.type=c("common","common","specific","specific"))
+
+initial.parameters.basic.vb <- data.table(
+  mean = c(6,7,0,15),
+  nu = c(5),
+  scale = c(4),
+  shape = c(0.125),
+  component.type = c("common","common","specific","specific"))
 
 initial.parameters.basic
 ```
@@ -112,11 +131,15 @@ To fit the model pass the data (without the component labels), the initial rho, 
 
 ```{r}
 output.test.basic <- fit.model(test.data.basic[,.(vals,seg)], rho=0.5, initial.parameters.basic)
+output.test.basic.vb <- fit.model.vb(test.data.basic[,.(vals,seg)], initial.parameters.basic.vb, max.iterations=50)
 ```
 
 We can then visualise the result using the plot.components() function.
 ```{r,fig.width=7}
-plot.components(test.data.basic,output.test.basic)
+plot.components(test.data.basic, output.test.basic)
+plot.components(test.data.basic, output.test.basic, type = "density")
+plot.components(test.data.basic, output.test.basic.vb)
+plot.components(test.data.basic, output.test.basic.vb, type = "density")
 ```
 
 ## Non gaussian underlying data
