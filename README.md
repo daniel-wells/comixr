@@ -6,7 +6,7 @@ This is an R package for fitting gaussian mixture models with shared components 
 ```R
 # install.packages("devtools")
 devtools::install_github("daniel-wells/comixr")
-```#
+```
 
 For examples of how to use the function please see the vignette.
 
