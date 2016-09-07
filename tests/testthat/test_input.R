@@ -81,3 +81,11 @@ test_that("Input parameters are ok", {
 	expect_error(fit.model(input.ok, parameters.nocomponenttype, algorithm = "VB"), "At least one common and one specific component required", fixed=TRUE)
 
 })
+
+test_that("required function options are ok", {
+	expect_error(fit.model(input.ok, parameters.ok, algorithm = "NO"), "Algorithm should be either EM or VB", fixed=TRUE)
+	expect_error(fit.model(input.ok, parameters.ok, algorithm = "VB", rho = "hi"), "rho should be a single numeric value", fixed=TRUE)
+	expect_error(fit.model(input.ok, parameters.ok, algorithm = "VB", rho = 2), "rho should be between 0 and 1", fixed=TRUE)
+	expect_error(fit.model(input.ok, parameters.ok, algorithm = "VB", rho = c(0.5,0.5)), "rho should be a single numeric value", fixed=TRUE)
+})
+
