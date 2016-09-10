@@ -39,9 +39,9 @@ parse.output.parameters <- function(output, segment.subset = NULL){
 
 #' Plot fitted shared component gaussian mixed model.
 #'
-#' \code{plot.components} Returns histograms of fitted gaussians and original data by dataset.
+#' \code{plot_comixture} Returns histograms of fitted gaussians and original data by dataset.
 #'
-#' @param vals.df original data, identical to fit.model() input
+#' @param data original data, identical to fit.model() input
 #' @param output.parameters, list of parameters, output of fit.model()
 #' @param segment.subset, optional, list of segment names to plot, default uses all segments
 #' @param type, optional, if value is "density", a density plot comparing orignal vs model distribution.
@@ -49,16 +49,16 @@ parse.output.parameters <- function(output, segment.subset = NULL){
 #' If left empty the modeled components are plotted (with common and specific in different colours)
 #'
 #' @examples
-#' plot.components(input.data, output.data, segment.subset = "segment16")
+#' # plot_comixture(input.data, output.data, segment.subset = "segment16")
 #' @export
 #' @import ggplot2
 
-plot.components <- function(vals.df, output.parameters, segment.subset = NULL, type = NULL){
+plot_comixture <- function(data, output.parameters, segment.subset = NULL, type = NULL){
   
   output.parameters <- parse.output.parameters(output.parameters, segment.subset)
   
   if(!is.null(segment.subset)){
-    vals.df <- vals.df[seg %in% segment.subset]
+    data <- data[seg %in% segment.subset]
   }
   
   # create new data based on fitted model parameters
@@ -79,14 +79,14 @@ plot.components <- function(vals.df, output.parameters, segment.subset = NULL, t
   }
   
   # fill in extra columns to enable binding below
-  vals.df$component.type <- "Original Data"
-  vals.df$source <- "Original Data"
-  if (!any(names(vals.df) == "comp")){
-    vals.df$comp <- NA
+  data$component.type <- "Original Data"
+  data$source <- "Original Data"
+  if (!any(names(data) == "comp")){
+    data$comp <- NA
   }
   
   # combine original data with new data based from model
-  temp <- rbind(temp, vals.df)
+  temp <- rbind(temp, data)
   
   # ggplot(temp, aes(vals, group = comp,colour=component.type)) +
   #   geom_freqpoly(binwidth=0.1) +

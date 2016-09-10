@@ -8,10 +8,15 @@ fit.model(data, input.parameters, rho = 0.5, max.iterations = 40,
   break.parameter = 5, algorithm = "EM", quiet = FALSE)
 }
 \arguments{
+\item{data}{data.frame with two columns, first being numeric read.counts,
+and second being charachter segment names. Column names can be whatever.}
+
 \item{input.parameters}{Data frame holding initialisation parameters for the prior distribution parameters.
 With numeric columns "scale" and "shape" the parameters for the gamma
 prior on precision; "mean" and "nu" for the mean and precision parameters for the normal prior on 
 the mean; and a charachter column "component.type" with either "common" or "specific"}
+
+\item{rho}{Numeric value for initial value of rho parameter}
 
 \item{max.iterations}{maximum number of iterations}
 
@@ -22,11 +27,6 @@ between two iterations is less than this value the iteration will stop}
 One of either "EM" (Expectation-Maximisation) or "VB" (Variational-Bayes)}
 
 \item{quiet, }{Logical specifying whether the iteration number should be printed for each iteration}
-
-\item{read.count}{data.frame with two columns, first being numeric read.counts,
-and second being charachter segment names. Column names can be whatever.}
-
-\item{rho.input}{Numeric value for initial value of rho parameter}
 }
 \value{
 A list of parameters
