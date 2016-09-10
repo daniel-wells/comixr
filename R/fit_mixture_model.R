@@ -3,10 +3,10 @@
 #' \code{fit.model} returns parameters for gassians fitted to the data.
 #'
 #'
-#' @param read.count data.frame with two columns, first being numeric read.counts,
+#' @param data data.frame with two columns, first being numeric read.counts,
 #'  and second being charachter segment names. Column names can be whatever.
 #'
-#' @param rho.input Numeric value for initial value of rho parameter
+#' @param rho Numeric value for initial value of rho parameter
 #' 
 #' @param input.parameters Data frame holding initialisation parameters for the prior distribution parameters.
 #' With numeric columns "scale" and "shape" the parameters for the gamma
