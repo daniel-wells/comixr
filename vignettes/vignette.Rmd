@@ -56,11 +56,11 @@ output.vb <- fit.model(input, initial.parameters.vb, algorithm = "VB")
 And plot the results:
 
 ```{r, fig.width = 7}
-plot.components(input, output)
-plot.components(input, output, type = "density")
+plot_comixture(input, output)
+plot_comixture(input, output, type = "density")
 
-plot.components(input, output.vb)
-plot.components(input, output.vb, type = "density")
+plot_comixture(input, output.vb)
+plot_comixture(input, output.vb, type = "density")
 ```
 
 ## Multiple common and specific components
@@ -134,12 +134,12 @@ output.test.basic <- fit.model(test.data.basic[,.(vals,seg)], initial.parameters
 output.test.basic.vb <- fit.model(test.data.basic[,.(vals,seg)], initial.parameters.basic.vb, max.iterations=50, algorithm="VB")
 ```
 
-We can then visualise the result using the plot.components() function.
+We can then visualise the result using the plot_comixture() function.
 ```{r,fig.width=7}
-plot.components(test.data.basic, output.test.basic)
-plot.components(test.data.basic, output.test.basic, type = "density")
-plot.components(test.data.basic, output.test.basic.vb)
-plot.components(test.data.basic, output.test.basic.vb, type = "density")
+plot_comixture(test.data.basic, output.test.basic)
+plot_comixture(test.data.basic, output.test.basic, type = "density")
+plot_comixture(test.data.basic, output.test.basic.vb)
+plot_comixture(test.data.basic, output.test.basic.vb, type = "density")
 ```
 
 ## Non gaussian underlying data
@@ -161,5 +161,5 @@ initial.parameters.realistic <- data.table(
 
 output.realistic <- fit.model(test.data.realistic[,.(vals,seg)],initial.parameters.realistic, max.iterations=12)
 
-plot.components(test.data.realistic,output.realistic)
+plot_comixture(test.data.realistic,output.realistic)
 ```
