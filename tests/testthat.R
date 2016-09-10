@@ -1,4 +1,4 @@
 library(testthat)
-library(digi.pico.scna)
+library(comixr)
 
-test_check("digi.pico.scna")
+test_check("comixr")
