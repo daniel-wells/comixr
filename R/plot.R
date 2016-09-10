@@ -1,5 +1,3 @@
-library("ggplot2")
-library("data.table")
 
 # parse learned/output parameters - the output is given as a nested list, 
 # but we need a data frame with one line per component (for each segment) to plot with ggplot2
@@ -51,7 +49,7 @@ parse.output.parameters <- function(output, segment.subset = NULL){
 #' @examples
 #' # plot_comixture(input.data, output.data, segment.subset = "segment16")
 #' @export
-#' @import ggplot2
+#' @import ggplot2 data.table
 
 plot_comixture <- function(data, output.parameters, segment.subset = NULL, type = NULL){
   
