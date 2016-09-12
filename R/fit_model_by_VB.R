@@ -7,8 +7,8 @@ VB <- function(segment.indicies, read.count, rho, com.param, n.specific.componen
 
 t_data_specific <- m_data_specific <- sigma2_specific <- y2_weighted_specific <- y_weighted_specific <- N_specific <- matrix(nrow = n.segments, ncol = n.specific.components)
 t_data <- m_data <- sigma2_common <- y2_weighted_common <- y_weighted_common <- N_common <- matrix(nrow = 1, ncol = n.common.components)
-kappa <- matrix(rep(500, n.segments),nrow = 1, ncol = n.segments)
-N_rho <- matrix(rep(500, n.segments),nrow = 1, ncol = n.segments)
+kappa <- matrix(rep(500, n.segments), nrow = 1, ncol = n.segments)
+N_rho <- matrix(rep(500, n.segments), nrow = 1, ncol = n.segments)
 
 ##### reponsibilities
 gamma <- gamma_topsum <- matrix(nrow = length(read.count), ncol = n.specific.components)
@@ -65,10 +65,12 @@ for (round in 1:max.iterations){
 
 weighting_c = exp(digamma(common_parameters$lambda) - digamma(sum(common_parameters$lambda)))
 beta_tilde_c = exp(digamma(common_parameters$shape) + log(common_parameters$scale))
-common_topsum <- weighting_c * beta_tilde_c^0.5 *
-  exp(-0.5 * common_parameters$scale * common_parameters$shape * ( outer(read.count^2, common_parameters$mean^2 + common_parameters$nu, FUN="+") - 2 * outer(read.count, common_parameters$mean, FUN="*") ) )
+common_topsum <-  sweep(
+  exp( sweep( outer(read.count^2, common_parameters$mean^2 + common_parameters$nu, FUN="+") - 2 * outer(read.count, common_parameters$mean, FUN="*")
+             , 2, (-0.5 * common_parameters$scale * common_parameters$shape),"*") )
+  , 2, (weighting_c * beta_tilde_c^0.5), "*")
 
-phi = common_topsum / rowSums(common_topsum)
+phi = common_topsum / (rowSums(common_topsum) + 0.000000001)
 
 # calculate responsibilities for specific components
 
@@ -82,19 +84,19 @@ rho_weighting = exp(digamma(kappa) - digamma(sum(kappa)))
 for (segment in segment.names){
   indexes <- segment.indicies[[segment]]
   
-gamma_topsum[indexes, ] <- weighting[segment, ] * beta_tilde[segment, ]^0.5 *
-                            exp(-0.5 * beta_bar[segment, ] * 
+gamma_topsum[indexes, ] <- sweep(
+                            exp( sweep(
                                   (outer(read.count[indexes]^2, specific_parameters$mean[segment, ]^2 + specific_parameters$nu[segment, ], FUN="+") 
-                                    - 2 * outer(read.count[indexes], specific_parameters$mean[segment, ], FUN="*")
-                                  )
-                                )
+                                    - 2 * outer(read.count[indexes], specific_parameters$mean[segment, ], FUN="*"))
+                                  ,2, (-0.5 *beta_bar[segment, ]), "*"))
+                                ,2, (weighting[segment, ] * beta_tilde[segment, ]^0.5), "*")
 
-gamma[indexes, ] <- gamma_topsum[indexes, ]/rowSums(gamma_topsum[indexes, , drop=FALSE])
+gamma[indexes, ] <- gamma_topsum[indexes, ] / (rowSums(gamma_topsum[indexes, , drop=FALSE]) + 0.000001)
 
 # calculate probaility for each data point in common or specific component
 psi_topsum <- (1-rho_weighting[segment]) * rowSums(common_topsum[indexes, , drop=FALSE])
 psi_bottomsum <- psi_topsum + (rho_weighting[segment] * rowSums(gamma_topsum[indexes, , drop=FALSE]))
-psi[indexes] <- psi_topsum / psi_bottomsum
+psi[indexes] <- psi_topsum / (psi_bottomsum + 0.000001)
 
 #hist(phi[indexes],breaks=100)
 #hist(gamma[indexes],breaks=100)
