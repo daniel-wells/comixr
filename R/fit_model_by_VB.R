@@ -7,8 +7,8 @@ VB <- function(segment.indicies, read.count, rho, com.param, n.specific.componen
 
 t_data_specific <- m_data_specific <- sigma2_specific <- y2_weighted_specific <- y_weighted_specific <- N_specific <- matrix(nrow = n.segments, ncol = n.specific.components)
 t_data <- m_data <- sigma2_common <- y2_weighted_common <- y_weighted_common <- N_common <- matrix(nrow = 1, ncol = n.common.components)
-kappa <- matrix(rep(500, n.segments), nrow = 1, ncol = n.segments)
-N_rho <- matrix(rep(500, n.segments), nrow = 1, ncol = n.segments)
+kappa <- matrix(rep(500, n.segments), nrow = 1)
+N_rho <- matrix(rep(length(read.count)/n.segments, n.segments), nrow = 1)
 
 ##### reponsibilities
 gamma <- gamma_topsum <- matrix(nrow = length(read.count), ncol = n.specific.components)
@@ -51,7 +51,6 @@ common_parameters$shape <- com.param$shape
 common_parameters$nu <- com.param$nu
 common_parameters$mean <- com.param$mean
 
-
 iter.count <- 0
 
 ##### UPDATES
@@ -70,7 +69,7 @@ common_topsum <-  sweep(
              , 2, (-0.5 * common_parameters$scale * common_parameters$shape),"*") )
   , 2, (weighting_c * beta_tilde_c^0.5), "*")
 
-phi = common_topsum / (rowSums(common_topsum) + 0.000000001)
+phi = common_topsum / (rowSums(common_topsum) + 10^(-5))
 
 # calculate responsibilities for specific components
 
@@ -91,12 +90,12 @@ gamma_topsum[indexes, ] <- sweep(
                                   ,2, (-0.5 *beta_bar[segment, ]), "*"))
                                 ,2, (weighting[segment, ] * beta_tilde[segment, ]^0.5), "*")
 
-gamma[indexes, ] <- gamma_topsum[indexes, ] / (rowSums(gamma_topsum[indexes, , drop=FALSE]) + 0.000001)
+gamma[indexes, ] <- gamma_topsum[indexes, ] / (rowSums(gamma_topsum[indexes, , drop=FALSE]) + 10^(-5))
 
 # calculate probaility for each data point in common or specific component
 psi_topsum <- (1-rho_weighting[segment]) * rowSums(common_topsum[indexes, , drop=FALSE])
 psi_bottomsum <- psi_topsum + (rho_weighting[segment] * rowSums(gamma_topsum[indexes, , drop=FALSE]))
-psi[indexes] <- psi_topsum / (psi_bottomsum + 0.000001)
+psi[indexes] <- psi_topsum / (psi_bottomsum + 10^(-5))
 
 #hist(phi[indexes],breaks=100)
 #hist(gamma[indexes],breaks=100)
