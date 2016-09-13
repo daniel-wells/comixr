@@ -35,7 +35,7 @@ We need to specify our initial components for each component type:
 initial.parameters <- data.table(
   w = 0.5,
   mean = c(6,4),
-  sigma2 = 1,
+  variance = 1,
   component.type = c("common","specific"))
 
  initial.parameters.vb <- data.table(
@@ -111,13 +111,12 @@ ggplot(test.data.basic, aes(vals)) +
 
 ## Fitting the model
 
-To fit a shared gaussian mixture model to this data we need to specify the number of components in the model and the initial parameters for each component. w is the mixing weight of each component, mu the mean, and sigma2 the variance ($\sigma^2$)
+To fit a shared gaussian mixture model to this data we need to specify the number of components in the model and the initial parameters for each component. w is the mixing weight of each component, mu the mean, and variance ($\sigma^2$). By default comixr uses the EM algorithm, but it can also use the VB.
 
 ```{r}
 initial.parameters.basic <- data.table(
   w=c(0.5),
   mean=c(3.5,10,2,11),
-  sigma2=c(0.6^2),
   component.type=c("common","common","specific","specific"))
 
 initial.parameters.basic.vb <- data.table(
@@ -125,6 +124,7 @@ initial.parameters.basic.vb <- data.table(
   nu = c(5),
   scale = c(4),
   shape = c(0.125),
+#   variance=c(0.6^2),
   component.type = c("common","common","specific","specific"))
 
 initial.parameters.basic

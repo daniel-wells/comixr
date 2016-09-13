@@ -5,8 +5,8 @@ VB <- function(segment.indicies, read.count, rho, com.param, n.specific.componen
   if (all(colnames(input.parameters) != "scale")) stop("Scale parameter values required")
   if (all(colnames(input.parameters) != "shape")) stop("Shape parameter values required")
 
-t_data_specific <- m_data_specific <- sigma2_specific <- y2_weighted_specific <- y_weighted_specific <- N_specific <- matrix(nrow = n.segments, ncol = n.specific.components)
-t_data <- m_data <- sigma2_common <- y2_weighted_common <- y_weighted_common <- N_common <- matrix(nrow = 1, ncol = n.common.components)
+t_data_specific <- m_data_specific <- variance_specific <- y2_weighted_specific <- y_weighted_specific <- N_specific <- matrix(nrow = n.segments, ncol = n.specific.components)
+t_data <- m_data <- variance_common <- y2_weighted_common <- y_weighted_common <- N_common <- matrix(nrow = 1, ncol = n.common.components)
 kappa <- matrix(rep(500, n.segments), nrow = 1)
 N_rho <- matrix(rep(length(read.count)/n.segments, n.segments), nrow = 1)
 
@@ -133,9 +133,9 @@ for (segment in segment.names){
   specific_parameters$lambda[segment, ] <- N_specific[segment, ] + priors$lambda
   kappa[segment] <- N_rho[segment] + priors$lambda
   
-  sigma2_specific[segment, ] <- y2_weighted_specific[segment, ] + specific_parameters$mix_weights[segment,] * (specific_parameters$mean[segment, ]^2 + specific_parameters$nu[segment, ]) - 2 * specific_parameters$mean[segment, ] * y_weighted_specific[segment, ]
+  variance_specific[segment, ] <- y2_weighted_specific[segment, ] + specific_parameters$mix_weights[segment,] * (specific_parameters$mean[segment, ]^2 + specific_parameters$nu[segment, ]) - 2 * specific_parameters$mean[segment, ] * y_weighted_specific[segment, ]
 
-  specific_parameters$scale[segment, ] <- 1/( sigma2_specific[segment, ] * 0.5 * sum.of.1.minus.psi + 1/priors$scale)
+  specific_parameters$scale[segment, ] <- 1/( variance_specific[segment, ] * 0.5 * sum.of.1.minus.psi + 1/priors$scale)
   
   specific_parameters$shape[segment, ] <- N_specific[segment, ] * 0.5 + priors$shape
   
@@ -160,9 +160,9 @@ y2_weighted_common <- colSums( psi * phi * read.count^2 ) / sum.of.psi
 
 common_parameters$lambda <- N_common + priors$lambda
 
-sigma2_common <- y2_weighted_common + common_parameters$mix_weights * (common_parameters$mean^2 + common_parameters$nu) - 2 * common_parameters$mean * y_weighted_common
+variance_common <- y2_weighted_common + common_parameters$mix_weights * (common_parameters$mean^2 + common_parameters$nu) - 2 * common_parameters$mean * y_weighted_common
 
-common_parameters$scale <- 1/ (sigma2_common * 0.5 * sum.of.psi + 1/priors$scale)
+common_parameters$scale <- 1/ (variance_common * 0.5 * sum.of.psi + 1/priors$scale)
 
 common_parameters$shape <- N_common * 0.5 + priors$shape
 
