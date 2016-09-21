@@ -1,5 +1,5 @@
 # comixr
-This is an R package for fitting gaussian mixture models with shared components across 1-dimensional data sets.
+This is an R package for fitting gaussian mixture models with shared components across multiple 1-dimensional data sets.
 
 ## Installation
 
@@ -8,8 +8,16 @@ This is an R package for fitting gaussian mixture models with shared components 
 devtools::install_github("daniel-wells/comixr")
 ```
 
-For examples of how to use the function please see the vignette.
+For examples of how to use the function please see the [compiled vignette](http://rpubs.com/wells/comixr).
 
-Functions to fit the models and plot resulting components are in the [R/](R/) directory.
+![Example shared component mixture model](vignettes/example.png)
 
-[vignettes/](vignettes/) contains examples of how to use the GMM-EM functions ([vignette.Rmd](vignettes/vignette.Rmd)) as well as a full mathematical description of the model and the update equations for the [expectation maximiseation](https://cdn.rawgit.com/daniel-wells/comixr/master/vignettes/GMM-EM.html) algorithm as well as [variational bayes](https://cdn.rawgit.com/daniel-wells/comixr/master/vignettes/GMM-VB.html).
+There are also vignettes containing full mathematical descriptions of the model and the update equations both for the [expectation maximiseation](https://cdn.rawgit.com/daniel-wells/comixr/master/vignettes/GMM-EM.html) and [variational bayes](https://cdn.rawgit.com/daniel-wells/comixr/master/vignettes/GMM-VB.html) algorithms.
+
+The [R/](R/) directory contains source code of the functions to fit the models and plot resulting components.
+
+The [man/](man/) directory contains the manual pages for the functions, compiled by roxygen.
+
+The [tests/](tests/) directory contains the unit tests which are carried out by the testthat R package.
+
+Contributions of any size or form are welcome!
