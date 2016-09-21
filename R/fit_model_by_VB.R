@@ -53,6 +53,9 @@ common_parameters$mean <- com.param$mean
 
 iter.count <- 0
 
+# Start the clock!
+ptm <- proc.time()
+
 ##### UPDATES
 for (round in 1:max.iterations){
 
@@ -178,6 +181,11 @@ iter.count <- iter.count + 1
 if (quiet == FALSE) print(paste("Iteration:",iter.count))
 
 } # EM updates repetition loop
+
+# Stop the clock
+time <- proc.time() - ptm
+
+print(paste0("Finished after ", iter.count, " iterations (",round(time[3], digits = 1)," seconds)"))
 
 # parse output
 

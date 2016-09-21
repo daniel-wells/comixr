@@ -11,6 +11,9 @@ likelihood.byiter <- numeric()
 
 iter.count <- 0
 
+# Start the clock!
+ptm <- proc.time()
+
 #library(profvis)
 #library(microbenchmark)
 # profvis({ #CODE HERE })
@@ -83,14 +86,19 @@ for (segment in segment.names){
 
 
 iter.count <- iter.count + 1
-print(paste("Iteration:",iter.count))
+if (quiet == FALSE) print(paste("Iteration:",iter.count))
 
 if (iter.count>1){
-  if (min(abs(diff(likelihood.byiter))) < break.parameter){print("Done, saving parameter estimates")
+  if (min(abs(diff(likelihood.byiter))) < break.parameter){
     break}
 }
 
 } # EM updates repetition loop
+
+# Stop the clock
+time <- proc.time() - ptm
+
+print(paste0("Finished after ", iter.count, " iterations (",round(time[3], digits = 1)," seconds)"))
 
 # more raw output
 output <- list(
