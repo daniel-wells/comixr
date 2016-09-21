@@ -12,10 +12,14 @@ vignette: >
 A mixture of gaussian distibutions can be used to approximate a different non gaussian distribution. For example the hights of a population may be non-normal, but are well approximated by a mixture of two normal distributions which could represent the hights of sex. Sometimes you might have multiple datasets (or a single dataset segmented by some parameter) and you want to fit a gaussian mixture model to all data sets at once but for there to be some components which are shared across these data sets.
 
 ```{r}
-#devtools::load_all()
+devtools::load_all()
 library(data.table)
 library(ggplot2)
-library(comixr)
+#library(comixr)
+```
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=7)
 ```
 
 ## Simple Example
@@ -23,10 +27,10 @@ library(comixr)
 Let's simulate two datasets, each with a common density at ~5 and with some noise component with mean and variance unique to each dataset.
 
 ```{r}
-input <- rbind(data.table(vals = rnorm(2000, mean = 5.0, sd = 0.75),seg=1),
-               data.table(vals = rnorm(1000, mean = 0.5, sd = 1.0),seg=1),
-              data.table(vals = rnorm(2000, mean = 5.5, sd = 0.75),seg=2),
-              data.table(vals = rnorm(2000, mean = 4.0, sd = 3.0),seg=2))
+input <- rbind(data.table(vals = rnorm(2000, mean = 5.0, sd = 0.75), seg = 1),
+               data.table(vals = rnorm(1000, mean = 0.5, sd = 1.0), seg = 1),
+              data.table(vals = rnorm(2000, mean = 5.5, sd = 0.75), seg = 2),
+              data.table(vals = rnorm(2000, mean = 4.0, sd = 3.0), seg = 2))
 ```
 
 We need to specify our initial components for each component type:
@@ -38,14 +42,6 @@ initial.parameters <- data.table(
   variance = 1,
   component.type = c("common","specific"))
 
- initial.parameters.vb <- data.table(
-   mean=c(6,4),
-   nu=c(0.5),
-   scale=c(4),
-   shape=c(0.125),
-   component.type=c("common","specific"))
-
-
 initial.parameters
 ```
 
@@ -53,17 +49,25 @@ Now we can fit the model:
 
 ```{r}
 output <- fit.model(input, initial.parameters)
-output.vb <- fit.model(input, initial.parameters.vb, algorithm = "VB")
 ```
 
 And plot the results:
 
-```{r, fig.width = 7}
+```{r}
 plot_comixture(input, output)
 plot_comixture(input, output, type = "density")
+```
 
-plot_comixture(input, output.vb)
-plot_comixture(input, output.vb, type = "density")
+```{r, include=FALSE}
+# initial.parameters.vb <- data.table(
+#   mean=c(6,4),
+#   nu=c(0.5),
+#   scale=c(4),
+#   shape=c(0.125),
+#   component.type=c("common","specific"))
+# output.vb <- fit.model(input, initial.parameters.vb, algorithm = "VB",max.iterations = 20)
+# plot_comixture(input, output.vb)
+# plot_comixture(input, output.vb, type = "density")
 ```
 
 ## Multiple common and specific components
@@ -71,23 +75,21 @@ plot_comixture(input, output.vb, type = "density")
 Lets simulate some example data, two data sets, each with four components, two of which are shared across the data sets and two of which are unique to the data set.
 
 ```{r}
-library(data.table)
-
+test.data.basic <- rbind(
 # Common components
-component1 <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5), seg = 1)
-component2 <- data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5), seg = 2)
+            data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5), seg = 1),
+            data.table(comp = "A", vals = rnorm(2000, mean = 5, sd = 0.5), seg = 2),
 
-component3 <- data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5), seg = 1)
-component4 <- data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5), seg = 2)
+            data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5), seg = 1),
+            data.table(comp = "B", vals = rnorm(1500, mean = 9, sd = 0.5), seg = 2),
 
 # Unique components
-component5 <- data.table(comp = "C", vals = rnorm(3000, mean = 1, sd = 0.5), seg = 1)
-component6 <- data.table(comp = "D", vals = rnorm(2000, mean = 3, sd = 0.5), seg = 2)
+            data.table(comp = "C", vals = rnorm(3000, mean = -1, sd = 0.5), seg = 1),
+            data.table(comp = "D", vals = rnorm(2000, mean = 3, sd = 0.5), seg = 2),
 
-component7 <- data.table(comp = "E", vals = rnorm(1500, mean = 10, sd = 0.5), seg = 1)
-component8 <- data.table(comp = "F", vals = rnorm(1500, mean = 13, sd = 0.5), seg = 2)
-
-test.data.basic <- rbind(component1,component2,component3,component4,component5,component6,component7,component8)
+            data.table(comp = "E", vals = rnorm(1500, mean = 10, sd = 0.5), seg = 1),
+            data.table(comp = "F", vals = rnorm(1500, mean = 13, sd = 0.5), seg = 2)
+            )
 
 knitr::kable(head(test.data.basic, 5))
 
@@ -95,74 +97,126 @@ knitr::kable(head(test.data.basic, 5))
 
 Let's visualise the distribution of the two data sets broken down by component
 
-```{r,fig.width=7}
+```{r}
 library(ggplot2)
 ggplot(test.data.basic, aes(vals, colour = comp)) +
-  geom_freqpoly(binwidth=0.1) +
-  facet_wrap(~seg,nrow = 2)
-```
-
-We can also see the overall distributions:
-```{r,fig.width=7}
-ggplot(test.data.basic, aes(vals)) +
-  geom_density() +
-  facet_wrap(~seg,nrow = 2)
+  geom_freqpoly(binwidth = 0.1) +
+  facet_wrap(~seg, nrow = 2)
 ```
 
 ## Fitting the model
 
 To fit a shared gaussian mixture model to this data we need to specify the number of components in the model and the initial parameters for each component. w is the mixing weight of each component, mu the mean, and variance ($\sigma^2$). By default comixr uses the EM algorithm, but it can also use the VB.
 
-```{r}
-initial.parameters.basic <- data.table(
-  w=c(0.5),
-  mean=c(3.5,10,2,11),
-  component.type=c("common","common","specific","specific"))
-
-initial.parameters.basic.vb <- data.table(
-  mean = c(6,7,0,15),
-  nu = c(5),
-  scale = c(4),
-  shape = c(0.125),
+```{r, include=FALSE}
+# initial.parameters.basic <- data.table(
+#   w=c(0.5),
+#   mean=c(3.5,10,2,11),
 #   variance=c(0.6^2),
+#   component.type=c("common","common","specific","specific"))
+
+# output.test.basic <- fit.model(test.data.basic[,.(vals,seg)], initial.parameters.basic)
+
+#plot_comixture(test.data.basic, output.test.basic)
+#plot_comixture(test.data.basic, output.test.basic, type = "density")
+```
+
+```{r}
+initial.parameters.basic.vb.1 <- data.table(
+  mean = c(6,7,0.6,15),
+  nu = c(0.1),
+  scale = c(2^3),
+  shape = c(2^(-4)),
   component.type = c("common","common","specific","specific"))
 
-initial.parameters.basic
+initial.parameters.basic.vb.1
 ```
 
 To fit the model pass the data (without the component labels), the initial rho, and the other componentwise initial parameters to the fit.model() function.
 
 ```{r}
-output.test.basic <- fit.model(test.data.basic[,.(vals,seg)], initial.parameters.basic)
-output.test.basic.vb <- fit.model(test.data.basic[,.(vals,seg)], initial.parameters.basic.vb, max.iterations=50, algorithm="VB")
+output.test.basic.vb.1 <- fit.model(test.data.basic[,.(vals,seg)], initial.parameters.basic.vb.1, max.iterations = 60, algorithm = "VB", quiet = TRUE)
 ```
 
 We can then visualise the result using the plot_comixture() function.
-```{r,fig.width=7}
-plot_comixture(test.data.basic, output.test.basic)
-plot_comixture(test.data.basic, output.test.basic, type = "density")
-plot_comixture(test.data.basic, output.test.basic.vb)
-plot_comixture(test.data.basic, output.test.basic.vb, type = "density")
+```{r}
+plot_comixture(test.data.basic, output.test.basic.vb.1)
+plot_comixture(test.data.basic, output.test.basic.vb.1, type = "density")
+plot_comixture(test.data.basic, output.test.basic.vb.1, type = "QQ")
 ```
 
+
+This is also a good case to demonstrate the failure of this algorithm. Depending on the inital means the method can get stuck in a local maxima. E.g. change the mean 0.6 to 0.5.
+
+```{r}
+initial.parameters.basic.vb.2 <- data.table(
+  mean = c(6,7,0.5,15),
+  nu = c(0.1),
+  scale = c(2^3),
+  shape = c(2^(-4)),
+  component.type = c("common","common","specific","specific"))
+
+output.test.basic.vb.2 <- fit.model(test.data.basic[,.(vals,seg)], initial.parameters.basic.vb.2, max.iterations = 60, algorithm = "VB", quiet = TRUE)
+
+plot_comixture(test.data.basic, output.test.basic.vb.2)
+plot_comixture(test.data.basic, output.test.basic.vb.2, type = "density")
+plot_comixture(test.data.basic, output.test.basic.vb.2, type = "QQ")
+
+```
+
+
+If one of the input parameters is completely wrong e.g. if we change mean of 15 to 150, an error will be produced.
+```{r, error=TRUE}
+initial.parameters.basic.vb.3 <- data.table(
+  mean = c(6,7,0.49,150),
+  nu = c(0.1),
+  scale = c(2^3),
+  shape = c(2^(-4)),
+  component.type = c("common","common","specific","specific"))
+
+output.test.basic.vb.3 <- fit.model(test.data.basic[,.(vals,seg)], initial.parameters.basic.vb.3, max.iterations = 60, algorithm = "VB")
+```
 ## Non gaussian underlying data
 
 The model can also be fitted to data which isn't actually made from multiple gaussians at all. Simulate realistic read count data using negative binomial, 4 segments, 2 normal, 1 amp, 1 del. Parameters from real data
 
-```{r,fig.width=7}
+```{r}
 test.data.realistic <- rbind(
-  data.table(comp = "A", vals = rnbinom(5000, size=2.7, mu = 16.5),seg="normal.1"),
-  data.table(comp = "A", vals = rnbinom(5000, size=3, mu = 36),seg="amplified.1"),
-  data.table(comp = "A", vals = rnbinom(5000, size=2.9, mu = 8.4),seg="deleted.1"),
-  data.table(comp = "A", vals = rnbinom(5000, size=2.7, mu = 16.5),seg="normal.2"))
+  data.table(comp = "A", vals = rnbinom(5000, size=2.7, mu = 16.5), seg = "normal.1"),
+  data.table(comp = "A", vals = rnbinom(5000, size=3, mu = 36), seg = "amplified.1"),
+  data.table(comp = "A", vals = rnbinom(5000, size=2.9, mu = 8.4), seg = "deleted.1"),
+  data.table(comp = "A", vals = rnbinom(5000, size=2.7, mu = 16.5), seg = "normal.2"))
 
 initial.parameters.realistic <- data.table(
-  w=c(0.5),
-  mean=c(3,4,6,8,10,13,17,20,25,40,50,100,1,2),
-  sigma2=c(8^2),
-  component.type=c(rep("common",9),rep("specific",5)))
+  w = c(0.5),
+  mean = c(3,4,6,8,10,13,17,20,25,40,50,100,1,2),
+  variance = c(8^2),
+  component.type = c(rep("common",9),rep("specific",5)))
 
-output.realistic <- fit.model(test.data.realistic[,.(vals,seg)],initial.parameters.realistic)
+output.realistic <- fit.model(test.data.realistic[,.(vals,seg)], initial.parameters.realistic, quiet = TRUE)
 
-plot_comixture(test.data.realistic,output.realistic)
+plot_comixture(test.data.realistic, output.realistic)
+plot_comixture(test.data.realistic, output.realistic, type = "density")
+```
+
+```{r realistic-vb, include=FALSE}
+# test.data.realistic.vb <- rbind(
+#   data.table(vals = rnbinom(5000, size=2.7, mu = 16.5), seg = 1),
+#   data.table(vals = rnbinom(5000, size=3, mu = 36), seg = 2),
+#   data.table(vals = rnbinom(5000, size=2.9, mu = 8.4), seg = 3),
+#   data.table(vals = rnbinom(5000, size=2.7, mu = 16.5), seg = 4))
+# 
+# initial.parameters.realistic.vb <- data.table(
+#   mean = c(14,16,18,20,22,24,-2,-3,-4,-6,30,35,40,50), # c(30,40,50,150,7,8,10,60,70,80), # no? c(30,40,50,120,1,3,5,7,60,70,80), #c(30,40,50,120,1,3,5,7,60,70,80), # c(30,40,50,120,1,5,10,15,60,70,80), c(14,16,18,20,22,24,2,3,4,6,30,35,40,50)
+#   nu = c(3),
+#   scale = c(4),
+#   shape = c(0.125),
+#   component.type = c(rep("common",6), rep("specific",8)))
+# 
+# output.realistic.vb <- fit.model(test.data.realistic.vb[,.(vals,seg)], initial.parameters.realistic.vb, max.iterations=100, algorithm="VB")
+# 
+# output.realistic.vb$rho
+# 
+# plot_comixture(test.data.realistic.vb,output.realistic.vb)
+# plot_comixture(test.data.realistic.vb,output.realistic.vb, type="QQ")
 ```
