@@ -12,10 +12,8 @@ vignette: >
 A mixture of gaussian distibutions can be used to approximate a different non gaussian distribution. For example the hights of a population may be non-normal, but are well approximated by a mixture of two normal distributions which could represent the hights of sex. Sometimes you might have multiple datasets (or a single dataset segmented by some parameter) and you want to fit a gaussian mixture model to all data sets at once but for there to be some components which are shared across these data sets.
 
 ```{r}
-devtools::load_all()
+library(comixr)
 library(data.table)
-library(ggplot2)
-#library(comixr)
 ```
 
 ```{r global_options, include=FALSE}
@@ -146,11 +144,11 @@ plot_comixture(test.data.basic, output.test.basic.vb.1, type = "QQ")
 ```
 
 
-This is also a good case to demonstrate the failure of this algorithm. Depending on the inital means the method can get stuck in a local maxima. E.g. change the mean 0.6 to 0.5.
+This is also a good case to demonstrate the failure of this algorithm. Depending on the inital means the method can get stuck in a local maxima. E.g. change the mean 0.6 to 0.4.
 
 ```{r}
 initial.parameters.basic.vb.2 <- data.table(
-  mean = c(6,7,0.5,15),
+  mean = c(6,7,0.4,15),
   nu = c(0.1),
   scale = c(2^3),
   shape = c(2^(-4)),
@@ -168,7 +166,7 @@ plot_comixture(test.data.basic, output.test.basic.vb.2, type = "QQ")
 If one of the input parameters is completely wrong e.g. if we change mean of 15 to 150, an error will be produced.
 ```{r, error=TRUE}
 initial.parameters.basic.vb.3 <- data.table(
-  mean = c(6,7,0.49,150),
+  mean = c(6,7,0.6,150),
   nu = c(0.1),
   scale = c(2^3),
   shape = c(2^(-4)),
