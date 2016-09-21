@@ -3,10 +3,11 @@ Type: Package
 Title: Shared component gaussian mixture models in R
 Version: 1.0
 Date: 2016-09-07
-Author: Daniel Wells
-Maintainer: Daniel Wells <daniel.wells@well.ox.ac.uk>
-Description: This is an R package for fitting gaussian mixture models with shared components across 1-dimensional data sets.
-License: MIT
+Authors@R: c(
+	person("Daniel", "Wells", email = "daniel.wells@well.ox.ac.uk", role = c("aut", "cre")),
+	person("Christopher", "Yau", role = "aut"))
+Description: This is an R package for fitting gaussian mixture models with shared components across multiple 1-dimensional data sets using either expectation maximisation or variational bayes inference.
+License: MIT + file LICENSE
 Imports:
 	data.table,
 	ggplot2
