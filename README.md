@@ -1,5 +1,6 @@
 # comixr
 [![Travis-CI Build Status](https://travis-ci.org/daniel-wells/comixr.svg?branch=master)](https://travis-ci.org/daniel-wells/comixr)
+[![codecov](https://codecov.io/gh/daniel-wells/comixr/branch/master/graph/badge.svg)](https://codecov.io/gh/daniel-wells/comixr)
 
 This is an R package for fitting gaussian mixture models with shared components across multiple 1-dimensional data sets.
 
