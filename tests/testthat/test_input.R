@@ -70,16 +70,31 @@ parameters.nonu <- data.table(
 	scale=c(0.125),
 	component.type=c("specific","common"))
 
+parameters_no_w <- data.table(
+	mean = c(6,4),
+	variance = 1,
+	component.type = c("common","specific"))
+
+parameters_no_variance <- data.table(
+	w = 0.5,
+	mean = c(6,4),
+	component.type = c("common","specific"))
+
 
 test_that("Input parameters are ok", {
 	expect_error(fit.model(input.ok, parameters.nospecific, algorithm = "VB"), "At least one common and one specific component required", fixed=TRUE)
 	expect_error(fit.model(input.ok, parameters.nocommon, algorithm = "VB"), "At least one common and one specific component required", fixed=TRUE)
+	expect_error(fit.model(input.ok, parameters.nocomponenttype, algorithm = "VB"), "At least one common and one specific component required", fixed=TRUE)
 	expect_error(fit.model(input.ok, parameters.nomean, algorithm = "VB"), "Mean values required", fixed=TRUE)
+	
+	# VB specific
 	expect_error(fit.model(input.ok, parameters.nonu, algorithm = "VB"), "Nu values required", fixed=TRUE)
 	expect_error(fit.model(input.ok, parameters.noshape, algorithm = "VB"), "Shape parameter values required", fixed=TRUE)
 	expect_error(fit.model(input.ok, parameters.noscale, algorithm = "VB"), "Scale parameter values required", fixed=TRUE)
-	expect_error(fit.model(input.ok, parameters.nocomponenttype, algorithm = "VB"), "At least one common and one specific component required", fixed=TRUE)
 
+	# EM specific
+	expect_error(fit.model(input.ok, parameters_no_w, algorithm = "EM"), "Component weighting values required", fixed=TRUE)
+	expect_error(fit.model(input.ok, parameters_no_variance, algorithm = "EM"), "Variance values required", fixed=TRUE)
 })
 
 test_that("required function options are ok", {
