@@ -1,5 +1,8 @@
 EM <- function(segment.indicies, read.count, rho, com.param, n.specific.components, n.common.components, n.segments, input.parameters, max.iterations, break.parameter, quiet, segment.names){
 
+  if (all(colnames(input.parameters) != "w")) stop("Component weighting values required")
+  if (all(colnames(input.parameters) != "variance")) stop("Variance values required")
+	  
 w.k <- matrix(rep(input.parameters[component.type=="specific"]$w, each=n.segments), ncol = n.specific.components)
 mu.k <- matrix(rep(input.parameters[component.type=="specific"]$mean, each=n.segments), ncol = n.specific.components)
 variance.k <- matrix(rep(input.parameters[component.type=="specific"]$variance, each=n.segments), ncol = n.specific.components)
