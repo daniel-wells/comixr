@@ -39,8 +39,8 @@ parse.output.parameters <- function(output, segment.subset = NULL){
 #'
 #' \code{plot_comixture} Returns histograms of fitted gaussians and original data by dataset.
 #'
-#' @param data original data, identical to fit.model() input
-#' @param output.parameters, list of parameters, output of fit.model()
+#' @param data original data, identical to fit_comixture() input
+#' @param output.parameters, list of parameters, output of fit_comixture()
 #' @param segment.subset, optional, list of segment names to plot, default uses all segments
 #' @param type, optional, if value is "density", a density plot comparing orignal vs model distribution.
 #' If value is "QQ", a quantile-quantile plot is output.

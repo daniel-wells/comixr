@@ -1,6 +1,6 @@
 #' Fit shared component gaussian mixed model.
 #'
-#' \code{fit.model} returns parameters for gassians fitted to the data.
+#' \code{fit_comixture} returns parameters for gassians fitted to the data.
 #'
 #'
 #' @param data data.frame with two columns, first being numeric read.counts,
@@ -30,7 +30,7 @@
 #' @export
 #' @import data.table
 
-fit.model <- function(data, input.parameters, rho = 0.5, max.iterations = 40, break.parameter = 5, algorithm = "EM", quiet = FALSE){
+fit_comixture <- function(data, input.parameters, rho = 0.5, max.iterations = 40, break.parameter = 5, algorithm = "EM", quiet = FALSE){
 
   ### INITIALISATION
   

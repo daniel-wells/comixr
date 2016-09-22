@@ -46,7 +46,7 @@ initial.parameters
 Now we can fit the model:
 
 ```{r}
-output <- fit.model(input, initial.parameters)
+output <- fit_comixture(input, initial.parameters)
 ```
 
 And plot the results:
@@ -63,7 +63,7 @@ plot_comixture(input, output, type = "density")
 #   scale=c(4),
 #   shape=c(0.125),
 #   component.type=c("common","specific"))
-# output.vb <- fit.model(input, initial.parameters.vb, algorithm = "VB",max.iterations = 20)
+# output.vb <- fit_comixture(input, initial.parameters.vb, algorithm = "VB",max.iterations = 20)
 # plot_comixture(input, output.vb)
 # plot_comixture(input, output.vb, type = "density")
 ```
@@ -113,7 +113,7 @@ To fit a shared gaussian mixture model to this data we need to specify the numbe
 #   variance=c(0.6^2),
 #   component.type=c("common","common","specific","specific"))
 
-# output.test.basic <- fit.model(test.data.basic[,.(vals,seg)], initial.parameters.basic)
+# output.test.basic <- fit_comixture(test.data.basic[,.(vals,seg)], initial.parameters.basic)
 
 #plot_comixture(test.data.basic, output.test.basic)
 #plot_comixture(test.data.basic, output.test.basic, type = "density")
@@ -130,10 +130,10 @@ initial.parameters.basic.vb.1 <- data.table(
 initial.parameters.basic.vb.1
 ```
 
-To fit the model pass the data (without the component labels), the initial rho, and the other componentwise initial parameters to the fit.model() function.
+To fit the model pass the data (without the component labels), the initial rho, and the other componentwise initial parameters to the fit_comixture() function.
 
 ```{r}
-output.test.basic.vb.1 <- fit.model(test.data.basic[,.(vals,seg)], initial.parameters.basic.vb.1, max.iterations = 60, algorithm = "VB", quiet = TRUE)
+output.test.basic.vb.1 <- fit_comixture(test.data.basic[,.(vals,seg)], initial.parameters.basic.vb.1, max.iterations = 60, algorithm = "VB", quiet = TRUE)
 ```
 
 We can then visualise the result using the plot_comixture() function.
@@ -154,7 +154,7 @@ initial.parameters.basic.vb.2 <- data.table(
   shape = c(2^(-4)),
   component.type = c("common","common","specific","specific"))
 
-output.test.basic.vb.2 <- fit.model(test.data.basic[,.(vals,seg)], initial.parameters.basic.vb.2, max.iterations = 60, algorithm = "VB", quiet = TRUE)
+output.test.basic.vb.2 <- fit_comixture(test.data.basic[,.(vals,seg)], initial.parameters.basic.vb.2, max.iterations = 60, algorithm = "VB", quiet = TRUE)
 
 plot_comixture(test.data.basic, output.test.basic.vb.2)
 plot_comixture(test.data.basic, output.test.basic.vb.2, type = "density")
@@ -172,7 +172,7 @@ initial.parameters.basic.vb.3 <- data.table(
   shape = c(2^(-4)),
   component.type = c("common","common","specific","specific"))
 
-output.test.basic.vb.3 <- fit.model(test.data.basic[,.(vals,seg)], initial.parameters.basic.vb.3, max.iterations = 60, algorithm = "VB")
+output.test.basic.vb.3 <- fit_comixture(test.data.basic[,.(vals,seg)], initial.parameters.basic.vb.3, max.iterations = 60, algorithm = "VB")
 ```
 ## Non gaussian underlying data
 
@@ -191,7 +191,7 @@ initial.parameters.realistic <- data.table(
   variance = c(8^2),
   component.type = c(rep("common",9),rep("specific",5)))
 
-output.realistic <- fit.model(test.data.realistic[,.(vals,seg)], initial.parameters.realistic, quiet = TRUE)
+output.realistic <- fit_comixture(test.data.realistic[,.(vals,seg)], initial.parameters.realistic, quiet = TRUE)
 
 plot_comixture(test.data.realistic, output.realistic)
 plot_comixture(test.data.realistic, output.realistic, type = "density")
@@ -211,7 +211,7 @@ plot_comixture(test.data.realistic, output.realistic, type = "density")
 #   shape = c(0.125),
 #   component.type = c(rep("common",6), rep("specific",8)))
 # 
-# output.realistic.vb <- fit.model(test.data.realistic.vb[,.(vals,seg)], initial.parameters.realistic.vb, max.iterations=100, algorithm="VB")
+# output.realistic.vb <- fit_comixture(test.data.realistic.vb[,.(vals,seg)], initial.parameters.realistic.vb, max.iterations=100, algorithm="VB")
 # 
 # output.realistic.vb$rho
 # 

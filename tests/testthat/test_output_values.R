@@ -21,9 +21,9 @@ initial.parameters.em <- data.table(
 	variance = 1,
 	component.type = c("common","specific"))
 
-output <- fit.model(input, initial.parameters.vb, quiet = T, algorithm = "VB")
+output <- fit_comixture(input, initial.parameters.vb, quiet = T, algorithm = "VB")
 
-output.em <- fit.model(input, initial.parameters.em, quiet = T, algorithm = "EM")
+output.em <- fit_comixture(input, initial.parameters.em, quiet = T, algorithm = "EM")
 
 test_that("common parameter estimates are reasonable", {
 	expect_equal(output$common_parameters$mean, 5, tolerance = 0.3)
@@ -78,9 +78,9 @@ initial.parameters.basic <- data.table(
   variance=c(0.6^2),
   component.type=c("common","common","specific","specific"))
 
-output.2.em <- fit.model(test.data.basic, initial.parameters.basic, quiet = T, algorithm = "EM")
+output.2.em <- fit_comixture(test.data.basic, initial.parameters.basic, quiet = T, algorithm = "EM")
 
-output.2 <- fit.model(test.data.basic, initial.parameters.basic.vb, max.iterations = 30, quiet = T, algorithm = "VB")
+output.2 <- fit_comixture(test.data.basic, initial.parameters.basic.vb, max.iterations = 30, quiet = T, algorithm = "VB")
 
 test_that("common parameter estimates are reasonable", {
 	expect_equal(output.2$common_parameters$mean, c(7,11), tolerance = 0.1)

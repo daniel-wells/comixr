@@ -7,9 +7,9 @@
 plot_comixture(data, output.parameters, segment.subset = NULL, type = NULL)
 }
 \arguments{
-\item{data}{original data, identical to fit.model() input}
+\item{data}{original data, identical to fit_comixture() input}
 
-\item{output.parameters, }{list of parameters, output of fit.model()}
+\item{output.parameters, }{list of parameters, output of fit_comixture()}
 
 \item{segment.subset, }{optional, list of segment names to plot, default uses all segments}
 

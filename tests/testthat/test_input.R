@@ -20,9 +20,9 @@ input.onecolumn <- data.table(vals = rnorm(2000, mean = 5.0, sd = 0.75))
 input.threecolumn <- data.table(vals = rnorm(2000, mean = 5.0, sd = 0.75), seg = 1, extra = "hi")
 
 test_that("Input data is ok", {
-	expect_error(fit.model(input.onesegment, parameters.ok, algorithm = "VB"), "At least two segments required", fixed=TRUE)
-	expect_error(fit.model(input.onecolumn, parameters.ok, algorithm = "VB"), "Two columns of input required", fixed=TRUE)
-	expect_error(fit.model(input.threecolumn, parameters.ok, algorithm = "VB"), "Two columns of input required", fixed=TRUE)
+	expect_error(fit_comixture(input.onesegment, parameters.ok, algorithm = "VB"), "At least two segments required", fixed=TRUE)
+	expect_error(fit_comixture(input.onecolumn, parameters.ok, algorithm = "VB"), "Two columns of input required", fixed=TRUE)
+	expect_error(fit_comixture(input.threecolumn, parameters.ok, algorithm = "VB"), "Two columns of input required", fixed=TRUE)
 })
 
 
@@ -82,25 +82,25 @@ parameters_no_variance <- data.table(
 
 
 test_that("Input parameters are ok", {
-	expect_error(fit.model(input.ok, parameters.nospecific, algorithm = "VB"), "At least one common and one specific component required", fixed=TRUE)
-	expect_error(fit.model(input.ok, parameters.nocommon, algorithm = "VB"), "At least one common and one specific component required", fixed=TRUE)
-	expect_error(fit.model(input.ok, parameters.nocomponenttype, algorithm = "VB"), "At least one common and one specific component required", fixed=TRUE)
-	expect_error(fit.model(input.ok, parameters.nomean, algorithm = "VB"), "Mean values required", fixed=TRUE)
+	expect_error(fit_comixture(input.ok, parameters.nospecific, algorithm = "VB"), "At least one common and one specific component required", fixed=TRUE)
+	expect_error(fit_comixture(input.ok, parameters.nocommon, algorithm = "VB"), "At least one common and one specific component required", fixed=TRUE)
+	expect_error(fit_comixture(input.ok, parameters.nocomponenttype, algorithm = "VB"), "At least one common and one specific component required", fixed=TRUE)
+	expect_error(fit_comixture(input.ok, parameters.nomean, algorithm = "VB"), "Mean values required", fixed=TRUE)
 	
 	# VB specific
-	expect_error(fit.model(input.ok, parameters.nonu, algorithm = "VB"), "Nu values required", fixed=TRUE)
-	expect_error(fit.model(input.ok, parameters.noshape, algorithm = "VB"), "Shape parameter values required", fixed=TRUE)
-	expect_error(fit.model(input.ok, parameters.noscale, algorithm = "VB"), "Scale parameter values required", fixed=TRUE)
+	expect_error(fit_comixture(input.ok, parameters.nonu, algorithm = "VB"), "Nu values required", fixed=TRUE)
+	expect_error(fit_comixture(input.ok, parameters.noshape, algorithm = "VB"), "Shape parameter values required", fixed=TRUE)
+	expect_error(fit_comixture(input.ok, parameters.noscale, algorithm = "VB"), "Scale parameter values required", fixed=TRUE)
 
 	# EM specific
-	expect_error(fit.model(input.ok, parameters_no_w, algorithm = "EM"), "Component weighting values required", fixed=TRUE)
-	expect_error(fit.model(input.ok, parameters_no_variance, algorithm = "EM"), "Variance values required", fixed=TRUE)
+	expect_error(fit_comixture(input.ok, parameters_no_w, algorithm = "EM"), "Component weighting values required", fixed=TRUE)
+	expect_error(fit_comixture(input.ok, parameters_no_variance, algorithm = "EM"), "Variance values required", fixed=TRUE)
 })
 
 test_that("required function options are ok", {
-	expect_error(fit.model(input.ok, parameters.ok, algorithm = "NO"), "Algorithm should be either EM or VB", fixed=TRUE)
-	expect_error(fit.model(input.ok, parameters.ok, algorithm = "VB", rho = "hi"), "rho should be a single numeric value", fixed=TRUE)
-	expect_error(fit.model(input.ok, parameters.ok, algorithm = "VB", rho = 2), "rho should be between 0 and 1", fixed=TRUE)
-	expect_error(fit.model(input.ok, parameters.ok, algorithm = "VB", rho = c(0.5,0.5)), "rho should be a single numeric value", fixed=TRUE)
+	expect_error(fit_comixture(input.ok, parameters.ok, algorithm = "NO"), "Algorithm should be either EM or VB", fixed=TRUE)
+	expect_error(fit_comixture(input.ok, parameters.ok, algorithm = "VB", rho = "hi"), "rho should be a single numeric value", fixed=TRUE)
+	expect_error(fit_comixture(input.ok, parameters.ok, algorithm = "VB", rho = 2), "rho should be between 0 and 1", fixed=TRUE)
+	expect_error(fit_comixture(input.ok, parameters.ok, algorithm = "VB", rho = c(0.5,0.5)), "rho should be a single numeric value", fixed=TRUE)
 })
 
