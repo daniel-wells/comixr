@@ -2,5 +2,6 @@
 
 export(fit_comixture)
 export(plot_comixture)
+export(tidy_output)
 import(data.table)
 import(ggplot2)

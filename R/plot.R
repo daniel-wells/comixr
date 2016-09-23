@@ -1,6 +1,15 @@
+#' Convert fit_comixture output into tidy data format
+#'
+#' \code{tidy_output} Convert fit_comixture output into tidy data format .e.g for plotting. This function parses learned/output parameters - the output is given as a nested list, but we need a data frame with one line per component (for each segment) to plot with ggplot2
+#'
+#' @param output the output given by fit_comixture
+#' @param segment.subset, optional, list of segment names to plot, default uses all segments
+#'
+#' @examples
+#' 
+#' @export
+#' @import data.table
 
-# parse learned/output parameters - the output is given as a nested list, 
-# but we need a data frame with one line per component (for each segment) to plot with ggplot2
 tidy_output <- function(output, segment.subset = NULL){
 
   output.parameters <- data.table(rho = numeric(),
