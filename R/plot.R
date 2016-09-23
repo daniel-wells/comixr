@@ -1,7 +1,7 @@
 
 # parse learned/output parameters - the output is given as a nested list, 
 # but we need a data frame with one line per component (for each segment) to plot with ggplot2
-parse.output.parameters <- function(output, segment.subset = NULL){
+tidy_output <- function(output, segment.subset = NULL){
 
   output.parameters <- data.table(rho = numeric(),
                                   w = numeric(),
@@ -53,7 +53,7 @@ parse.output.parameters <- function(output, segment.subset = NULL){
 
 plot_comixture <- function(data, output.parameters, segment.subset = NULL, type = NULL){
   
-  output.parameters <- parse.output.parameters(output.parameters, segment.subset)
+  output.parameters <- tidy_output(output.parameters, segment.subset)
   
   if(!is.null(segment.subset)){
     data <- data[seg %in% segment.subset]
